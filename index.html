@@ -153,8 +153,7 @@ body { background-color: var(--body-bg); font-family: var(--font-standar); color
 .menu-toggle-btn { background: transparent; border: none; color: var(--text-main); font-size: 20px; cursor: pointer; padding: 6px; }
 h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; background: var(--title-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 .subtitle { font-size: 12px; color: var(--subtitle-color); font-family: var(--font-standar-mono); margin-top: 4px; opacity: 0.95; font-weight: 600; }
-.theme-toggle-btn, .fullscreen-btn { background: transparent; border: none; color: var(--blue); font-size: 18px; cursor: pointer; padding: 8px; border-radius: 50%; transition: all 0.2s; }
-.fullscreen-btn:hover { background: rgba(139, 92, 246, 0.15); color: var(--cyan); transform: scale(1.1); }
+.theme-toggle-btn { background: transparent; border: none; color: var(--blue); font-size: 18px; cursor: pointer; padding: 8px; border-radius: 50%; }
 .controls { display: flex; justify-content: center; width: 100%; position: relative; }
 .search-box { position: relative; width: 100%; }
 .search-box i.fa-search { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--cyan); font-size: 14px; z-index: 2; pointer-events: none; }
@@ -585,6 +584,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 <div class="sidebar-item" onclick="toggleSidebar(false); navigateToRoot(); gantiTabMenu('catatan', document.getElementById('tab-catatan'))"><i class="fa-solid fa-note-sticky"></i> Catatan</div>
 <div class="sidebar-item" onclick="toggleSidebar(false); notesLoaded=false; fetchData()"><i class="fa-solid fa-rotate"></i> Sync Cloud</div>
 <div class="sidebar-item" onclick="toggleSidebar(false); bukaSettingsPin()"><i class="fa-solid fa-key"></i> Pengaturan PIN</div>
+<div class="sidebar-item" onclick="toggleSidebar(false); toggleFullscreen()"><i class="fa-solid fa-expand" id="sidebarFullscreenIcon"></i> Layar Penuh</div>
 <div class="sidebar-item danger" onclick="kunciBrankasMendadak()"><i class="fa-solid fa-lock"></i> Kunci Brankas</div>
 <div class="sidebar-item" onclick="toggleSidebar(false); bukaQueueManager()"><i class="fa-solid fa-clock-rotate-left"></i> Antrian Sync</div>
 </div>
@@ -603,7 +603,6 @@ input:checked + .slider:before { transform: translateX(20px); }
 <div style="display:flex;align-items:center;gap:8px;">
 <span id="sync-status" class="sync-status-dot offline"><i class="fa-solid fa-wifi-slash"></i><span>Offline</span></span>
 <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleThemeMode()"><i class="fa-solid fa-moon"></i></button>
-<button class="fullscreen-btn" id="fullscreenBtn" onclick="toggleFullscreen()" title="Layar Penuh"><i class="fa-solid fa-expand" id="fullscreenIcon"></i></button>
 </div>
 </div>
 <div class="controls">
@@ -836,7 +835,7 @@ let showFolderRootView = false;
 const LONG_PRESS_DELAY = 400;
 const LONG_PRESS_MOVE_THRESHOLD = 10;
 let longPressState = { timer: null, active: false, target: null, startX: 0, startY: 0, triggered: false, lastX: 0, lastY: 0 };
-function safeGet(id) { const el = document.getElementById(id); if (!el) console.warn('️ Element not found:', id); return el; }
+function safeGet(id) { const el = document.getElementById(id); if (!el) console.warn('⚠️ Element not found:', id); return el; }
 function safeSetHTML(el, html) { if (el) el.innerHTML = html; }
 function safeSetText(el, text) { if (el) el.textContent = text; }
 function getFolderIconClass(level) { if (level === 0) return 'fa-solid fa-diagram-project'; if (level === 1) return 'fa-solid fa-folder'; return 'fa-solid fa-folder-open'; }
@@ -911,7 +910,7 @@ function updateSyncStatus() { const el = safeGet('sync-status'); if (!el) return
 function startAutoRetry() { if (syncIntervalId) return; syncIntervalId = setInterval(() => { if (isOnline && apiUrl && syncQueue.length > 0) processSyncQueue(); }, 30000); }
 function stopAutoRetry() { if (syncIntervalId) { clearInterval(syncIntervalId); syncIntervalId = null; } }
 window.addEventListener('online', () => { isOnline = true; showToast(' Online!', 'fa-wifi'); processSyncQueue(); updateSyncStatus(); });
-window.addEventListener('offline', () => { isOnline = false; showToast('📡 Offline', 'fa-wifi-slash'); updateSyncStatus(); });
+window.addEventListener('offline', () => { isOnline = false; showToast(' Offline', 'fa-wifi-slash'); updateSyncStatus(); });
 function getPinHash() { return localStorage.getItem('vault_pin_hash') || DEFAULT_PIN_HASH; }
 async function hashPin(pin) { const buffer = new TextEncoder().encode(pin); const hashBuffer = await crypto.subtle.digest('SHA-256', buffer); return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join(''); }
 function handlePinInput(input) { const val = input.value; const dots = document.querySelectorAll('#pinDots .dot'); dots.forEach((dot, i) => { if (i < val.length) dot.classList.add('filled'); else dot.classList.remove('filled'); }); if (val.length === 4) setTimeout(() => cekPinModern(val), 150); }
@@ -925,26 +924,26 @@ function showToast(msg, icon) { icon = icon || 'fa-circle-check'; const c = safe
 function saveAPI() { const input = safeGet('api-url-input'); const url = input ? input.value.trim() : ''; if (!url) { showToast('⚠️ URL kosong!', 'fa-circle-exclamation'); return; } if (!url.includes('/exec')) { showToast('⚠️ URL harus /exec', 'fa-circle-exclamation'); return; } apiUrl = url; localStorage.setItem('vault_api_url', url); showToast('✅ Database terhubung!', 'fa-check-circle'); notesLoaded = false; fetchData(); }
 function toggleSidebar(show) { const sidebar = safeGet('sidebarMenu'), overlay = safeGet('sidebarOverlay'); if (!sidebar || !overlay) return; if (show) { sidebar.classList.add('active'); overlay.classList.add('active'); } else { sidebar.classList.remove('active'); overlay.classList.remove('active'); } }
 function bukaDaftarFolderInduk() { showFolderRootView = true; currentTab = 'beranda'; navigationStack = []; document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); const tabBeranda = safeGet('tab-beranda'); if (tabBeranda) tabBeranda.classList.add('active'); const h2 = safeGet('nama-menu-halaman'); if (h2) safeSetHTML(h2, '<i class="fa-solid fa-folder-tree"></i><span>Folder Utama</span>'); renderCurrentView(); const appContainer = document.querySelector('.app-container'); if (appContainer) appContainer.scrollTo({top: 0, behavior: 'smooth'}); showToast('📁 Folder Utama', 'fa-folder-tree'); }
-// === FUNGSI FULLSCREEN ===
+// === FUNGSI FULLSCREEN (dipindah ke sidebar) ===
 function toggleFullscreen() {
-const icon = document.getElementById('fullscreenIcon');
+const sidebarIcon = document.getElementById('sidebarFullscreenIcon');
 if (!document.fullscreenElement) {
 if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
 else if (document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullscreen();
 else if (document.documentElement.msRequestFullscreen) document.documentElement.msRequestFullscreen();
-if (icon) icon.className = 'fa-solid fa-compress';
+if (sidebarIcon) sidebarIcon.className = 'fa-solid fa-compress';
 showToast('📱 Mode Layar Penuh', 'fa-expand');
 } else {
 if (document.exitFullscreen) document.exitFullscreen();
 else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
 else if (document.msExitFullscreen) document.msExitFullscreen();
-if (icon) icon.className = 'fa-solid fa-expand';
+if (sidebarIcon) sidebarIcon.className = 'fa-solid fa-expand';
 showToast('🔙 Keluar Layar Penuh', 'fa-compress');
 }
 }
 document.addEventListener('fullscreenchange', () => {
-const icon = document.getElementById('fullscreenIcon');
-if (icon) icon.className = document.fullscreenElement ? 'fa-solid fa-compress' : 'fa-solid fa-expand';
+const sidebarIcon = document.getElementById('sidebarFullscreenIcon');
+if (sidebarIcon) sidebarIcon.className = document.fullscreenElement ? 'fa-solid fa-compress' : 'fa-solid fa-expand';
 });
 window.onload = function() {
 const apiUrlInput = safeGet('api-url-input');
@@ -965,7 +964,7 @@ if (!e.target.closest('.search-box')) { const searchContainer = safeGet('searchD
 const floatingMenu = safeGet('floating-menu');
 if (floatingMenu && !e.target.closest('.floating-popup-menu') && !e.target.closest('.nav-center-btn')) floatingMenu.style.display = 'none';
 });
-async function fetchData(dataType, skipTabChange) { if (!apiUrl) { showToast("⚠️ URL belum diatur!", "fa-database"); return; } showToast("🔄 Sinkronisasi...", "fa-sync"); const tp = dataType || (currentTab === 'catatan' ? 'notes' : null); const url = tp ? (apiUrl + '?type=' + tp) : apiUrl; try { const res = await fetch(url); const data = await res.json(); if (dataType === 'notes' || tp === 'notes') { notes = data; notesLoaded = true; if (currentTab === 'catatan') renderCurrentView(); } else { accounts = data.map(function(a) { const kat = a.kategori || ''; const formattedKat = kat.split('/').map(function(p) { return p.trim().charAt(0).toUpperCase() + p.trim().slice(1).toLowerCase(); }).join('/'); return Object.assign({}, a, {kategori: formattedKat}); }); renderStats(); if (!skipTabChange) renderCurrentView(); } showToast("✅ Sinkronisasi berhasil!", "fa-check-circle"); updateSyncStatus(); } catch(e) { const container = safeGet('account-list-container'); if (container) safeSetHTML(container, '<p style="text-align:center; color:#ef4444;">Gagal sync.<br><small>' + e.message + '</small></p>'); showToast(" Gagal sync!", "fa-circle-xmark"); } }
+async function fetchData(dataType, skipTabChange) { if (!apiUrl) { showToast("️ URL belum diatur!", "fa-database"); return; } showToast("🔄 Sinkronisasi...", "fa-sync"); const tp = dataType || (currentTab === 'catatan' ? 'notes' : null); const url = tp ? (apiUrl + '?type=' + tp) : apiUrl; try { const res = await fetch(url); const data = await res.json(); if (dataType === 'notes' || tp === 'notes') { notes = data; notesLoaded = true; if (currentTab === 'catatan') renderCurrentView(); } else { accounts = data.map(function(a) { const kat = a.kategori || ''; const formattedKat = kat.split('/').map(function(p) { return p.trim().charAt(0).toUpperCase() + p.trim().slice(1).toLowerCase(); }).join('/'); return Object.assign({}, a, {kategori: formattedKat}); }); renderStats(); if (!skipTabChange) renderCurrentView(); } showToast("✅ Sinkronisasi berhasil!", "fa-check-circle"); updateSyncStatus(); } catch(e) { const container = safeGet('account-list-container'); if (container) safeSetHTML(container, '<p style="text-align:center; color:#ef4444;">Gagal sync.<br><small>' + e.message + '</small></p>'); showToast(" Gagal sync!", "fa-circle-xmark"); } }
 function renderStats() { const elTotal = safeGet('dash-total'); const elCats = safeGet('dash-cats'); const label1 = safeGet('kpi-label-1'); const label2 = safeGet('kpi-label-2'); if (!elTotal || !elCats || !label1 || !label2) return; if (currentTab === 'catatan') { elTotal.innerText = notes.length; elCats.innerText = [...new Set(notes.map(n => n.kategori))].length; label1.innerText = 'Total Catatan'; label2.innerText = 'Kategori'; return; } else if (currentTab === 'favorit') { const favCount = accounts.filter(a => a.favorit).length + notes.filter(n => n.favorit).length; const favCats = [...new Set([...accounts.filter(a => a.favorit).map(a => a.kategori), ...notes.filter(n => n.favorit).map(n => n.kategori)])].length; elTotal.innerText = favCount; elCats.innerText = favCats; label1.innerText = 'Item Favorit'; label2.innerText = 'Kategori'; return; } let filteredAccounts = accounts; if (currentTab === 'kerja') filteredAccounts = accounts.filter(a => (a.kategori || '').toLowerCase().startsWith('kerja')); else if (currentTab === 'keuangan') filteredAccounts = accounts.filter(a => (a.kategori || '').toLowerCase().startsWith('keuangan')); elTotal.innerText = filteredAccounts.length; elCats.innerText = [...new Set(filteredAccounts.map(a => a.kategori))].length; if (currentTab === 'kerja') label1.innerText = 'Akun Kerja'; else if (currentTab === 'keuangan') label1.innerText = 'Akun Keuangan'; else label1.innerText = 'Total Akun'; label2.innerText = 'Kategori'; }
 async function toggleFavoriteCloud(id, event, dataType) { dataType = dataType || 'vault'; if (event && event.stopPropagation) event.stopPropagation(); const targetArray = dataType === 'notes' ? notes : accounts; const idx = targetArray.findIndex(a => String(a.id) === String(id)); if (idx === -1) return; const isFav = targetArray[idx].favorit === true || String(targetArray[idx].favorit).toLowerCase() === 'true'; targetArray[idx].favorit = !isFav; try { const p = new URLSearchParams(); p.append("action", "toggle_favorite"); p.append("id", id); p.append("data_type", dataType); if (isOnline && apiUrl) await fetch(apiUrl, { method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: p }); else addToSyncQueue(p, `Favorit: ${isFav ? 'off' : 'on'}`); showToast(targetArray[idx].favorit ? "⭐ Ditambahkan ke favorit" : "Dihapus dari favorit", "fa-star"); } catch(e) { showToast("Gagal sync", "fa-circle-xmark"); } renderCurrentView(); renderStats(); }
 async function syncCategoryChange(id, newCategory, type) { if (!apiUrl) return; const params = new URLSearchParams(); params.append('action', 'update_category'); params.append('data_type', type); params.append('id', id); params.append('new_kategori', newCategory); if (isOnline) { try { await fetch(apiUrl, { method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: params }); } catch(e) { addToSyncQueue(params, `Kategori: ${newCategory}`); } } else { addToSyncQueue(params, `Kategori: ${newCategory}`); } }
