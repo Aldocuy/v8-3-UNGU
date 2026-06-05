@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#0f0a1a">
+<meta name="theme-color" content="#8b5cf6">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
@@ -555,11 +555,6 @@ input:checked + .slider:before { transform: translateX(20px); }
 [data-theme="light"] .backup-stat-card { background: #faf5ff; border-color: #e9d5ff; }
 .backup-stat-value { font-size: 22px; font-weight: 800; color: var(--cyan); }
 .backup-stat-label { font-size: 10px; color: var(--slate-500); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
-.backup-password-wrapper { position: relative; margin-top: 12px; }
-.backup-password-input { width: 100%; padding: 12px 40px 12px 12px; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; color: var(--text-main); font-size: 14px; }
-.backup-password-toggle { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--slate-500); cursor: pointer; padding: 4px; }
-.backup-hint { font-size: 11px; color: var(--slate-500); margin-top: 8px; display: flex; align-items: flex-start; gap: 6px; }
-.backup-hint i { color: var(--cyan); margin-top: 2px; }
 .import-preview-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: rgba(255, 255, 255, 0.02); border-radius: 8px; margin-bottom: 6px; font-size: 12px; }
 [data-theme="light"] .import-preview-item { background: #faf5ff; }
 .import-preview-icon { width: 28px; height: 28px; border-radius: 6px; background: rgba(139, 92, 246, 0.15); color: var(--cyan); display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
@@ -571,6 +566,11 @@ input:checked + .slider:before { transform: translateX(20px); }
 .import-file-details { flex: 1; min-width: 0; }
 .import-file-name { font-size: 14px; font-weight: 700; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .import-file-size { font-size: 11px; color: var(--slate-500); font-family: var(--font-standar-mono); }
+.backup-password-wrapper { position: relative; margin-top: 12px; }
+.backup-password-input { width: 100%; padding: 12px 40px 12px 12px; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; color: var(--text-main); font-size: 14px; }
+.backup-password-toggle { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--slate-500); cursor: pointer; padding: 4px; }
+.backup-hint { font-size: 11px; color: var(--slate-500); margin-top: 8px; display: flex; align-items: flex-start; gap: 6px; }
+.backup-hint i { color: var(--cyan); margin-top: 2px; }
 </style>
 </head>
 <body>
@@ -818,7 +818,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 </div>
 </div>
 <div id="import-password-section" style="display:none; margin-bottom:12px;">
-<p style="font-size:12px; color:var(--slate-300); margin-bottom:6px;"> File terenkripsi. Masukkan password:</p>
+<p style="font-size:12px; color:var(--slate-300); margin-bottom:6px;">🔒 File terenkripsi. Masukkan password:</p>
 <input type="password" id="import-password" class="form-input" placeholder="Password backup" style="margin-bottom:0;">
 </div>
 <div id="import-preview" style="max-height:200px; overflow-y:auto; margin-bottom:12px;"></div>
@@ -940,7 +940,7 @@ let importPendingData = null;
 const LONG_PRESS_DELAY = 400;
 const LONG_PRESS_MOVE_THRESHOLD = 10;
 let longPressState = { timer: null, active: false, target: null, startX: 0, startY: 0, triggered: false, lastX: 0, lastY: 0 };
-function safeGet(id) { const el = document.getElementById(id); if (!el) console.warn('️ Element not found:', id); return el; }
+function safeGet(id) { const el = document.getElementById(id); if (!el) console.warn('⚠️ Element not found:', id); return el; }
 function safeSetHTML(el, html) { if (el) el.innerHTML = html; }
 function safeSetText(el, text) { if (el) el.textContent = text; }
 function getFolderIconClass(level) { if (level === 0) return 'fa-solid fa-diagram-project'; if (level === 1) return 'fa-solid fa-folder'; return 'fa-solid fa-folder-open'; }
@@ -1015,7 +1015,7 @@ function updateSyncStatus() { const el = safeGet('sync-status'); if (!el) return
 function startAutoRetry() { if (syncIntervalId) return; syncIntervalId = setInterval(() => { if (isOnline && apiUrl && syncQueue.length > 0) processSyncQueue(); }, 30000); }
 function stopAutoRetry() { if (syncIntervalId) { clearInterval(syncIntervalId); syncIntervalId = null; } }
 window.addEventListener('online', () => { isOnline = true; showToast('🌐 Online!', 'fa-wifi'); processSyncQueue(); updateSyncStatus(); });
-window.addEventListener('offline', () => { isOnline = false; showToast(' Offline', 'fa-wifi-slash'); updateSyncStatus(); });
+window.addEventListener('offline', () => { isOnline = false; showToast('📡 Offline', 'fa-wifi-slash'); updateSyncStatus(); });
 function getPinHash() { return localStorage.getItem('vault_pin_hash') || DEFAULT_PIN_HASH; }
 async function hashPin(pin) { const buffer = new TextEncoder().encode(pin); const hashBuffer = await crypto.subtle.digest('SHA-256', buffer); return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join(''); }
 function handlePinInput(input) { const val = input.value; const dots = document.querySelectorAll('#pinDots .dot'); dots.forEach((dot, i) => { if (i < val.length) dot.classList.add('filled'); else dot.classList.remove('filled'); }); if (val.length === 4) setTimeout(() => cekPinModern(val), 150); }
@@ -1035,9 +1035,7 @@ document.addEventListener('fullscreenchange', () => { const sidebarIcon = docume
 // === BACKUP & RESTORE FUNCTIONS ===
 function bukaBackupRestore() {
 toggleSidebar(false);
-// Tampilkan menu pilihan
 const modal = safeGet('exportModal');
-// Reset
 exportSelectedCategories.clear();
 safeSetHTML(safeGet('export-category-list'), '');
 safeSetText(safeGet('export-total-akun'), accounts.length);
@@ -1045,7 +1043,6 @@ safeSetText(safeGet('export-total-catatan'), notes.length);
 safeSetText(safeGet('export-selected-count'), '0 dipilih');
 safeGet('export-password').value = '';
 modal.style.display = 'grid';
-// Build category list
 buildExportCategoryList();
 }
 function buildExportCategoryList() {
@@ -1080,7 +1077,6 @@ exportSelectedCategories.delete(cat);
 } else {
 exportSelectedCategories.add(cat);
 }
-// Update UI
 document.querySelectorAll('.backup-category-item').forEach(el => {
 if (el.dataset.category === cat) {
 if (exportSelectedCategories.has(cat)) el.classList.add('selected');
@@ -1112,7 +1108,7 @@ else { inp.type = 'password'; eye.className = 'fa-solid fa-eye'; }
 }
 async function doExport() {
 if (exportSelectedCategories.size === 0) {
-showToast('️ Pilih minimal 1 kategori!', 'fa-circle-exclamation');
+showToast('⚠️ Pilih minimal 1 kategori!', 'fa-circle-exclamation');
 return;
 }
 showToast('🔄 Memproses backup...', 'fa-spinner');
@@ -1126,7 +1122,6 @@ vault: accounts.filter(a => exportSelectedCategories.has(a.kategori)),
 notes: notes.filter(n => exportSelectedCategories.has(n.kategori))
 };
 let fileContent = JSON.stringify(exportData, null, 2);
-// Simple XOR encryption if password provided
 if (password.length > 0) {
 try {
 const encoder = new TextEncoder();
@@ -1174,16 +1169,9 @@ if (content.startsWith('RV_ENC:')) {
 isEncrypted = true;
 content = content.substring(7);
 }
-const parsed = JSON.parse(atob(content).split('').map(c => String.fromCharCode(c.charCodeAt(0))).join(''));
-// Wait, that's wrong for non-encrypted. Let me fix:
-let data;
 if (isEncrypted) {
-const decoded = atob(content);
-const bytes = new Uint8Array(decoded.length);
-for (let i = 0; i < decoded.length; i++) bytes[i] = decoded.charCodeAt(i);
-// Need password to decrypt - show password field
 safeGet('import-password-section').style.display = 'block';
-importPendingData = { bytes, isEncrypted: true, fileName: file.name, fileSize: file.size };
+importPendingData = { content, isEncrypted: true, fileName: file.name, fileSize: file.size };
 safeSetText(safeGet('import-file-name'), file.name);
 safeSetText(safeGet('import-file-size'), (file.size / 1024).toFixed(2) + ' KB');
 safeGet('import-step-1').style.display = 'none';
@@ -1191,9 +1179,9 @@ safeGet('import-step-2').style.display = 'block';
 safeSetHTML(safeGet('import-preview'), '<p style="text-align:center;color:var(--slate-500);padding:20px;">🔒 Masukkan password untuk preview</p>');
 return;
 } else {
-data = JSON.parse(e.target.result);
-}
+const data = JSON.parse(e.target.result);
 processImportData(data, file.name, file.size);
+}
 } catch(err) {
 showToast('❌ File tidak valid!', 'fa-circle-xmark');
 }
@@ -1202,7 +1190,7 @@ reader.readAsText(file);
 }
 function processImportData(data, fileName, fileSize) {
 if (!data.vault && !data.notes) {
-showToast(' Format file tidak dikenali!', 'fa-circle-xmark');
+showToast('⚠️ Format file tidak dikenali!', 'fa-circle-xmark');
 return;
 }
 importPendingData = { data, fileName, fileSize };
@@ -1211,10 +1199,7 @@ safeSetText(safeGet('import-file-size'), (fileSize / 1024).toFixed(2) + ' KB');
 safeGet('import-step-1').style.display = 'none';
 safeGet('import-step-2').style.display = 'block';
 safeGet('import-password-section').style.display = 'none';
-// Preview
 let previewHtml = '';
-const vaultCount = (data.vault || []).length;
-const noteCount = (data.notes || []).length;
 const cats = data.categories || [...new Set([...(data.vault||[]).map(a=>a.kategori), ...(data.notes||[]).map(n=>n.kategori)])];
 previewHtml += `<div style="margin-bottom:10px;font-size:12px;color:var(--slate-300);font-weight:600;">📦 Preview Data (${cats.length} kategori):</div>`;
 cats.slice(0, 8).forEach(cat => {
@@ -1241,14 +1226,16 @@ return;
 }
 try {
 const key = new TextEncoder().encode(password);
-const decrypted = new Uint8Array(importPendingData.bytes.length);
-for (let i = 0; i < importPendingData.bytes.length; i++) {
-decrypted[i] = importPendingData.bytes[i] ^ key[i % key.length];
+const decoded = atob(importPendingData.content);
+const bytes = new Uint8Array(decoded.length);
+for (let i = 0; i < decoded.length; i++) bytes[i] = decoded.charCodeAt(i);
+const decrypted = new Uint8Array(bytes.length);
+for (let i = 0; i < bytes.length; i++) {
+decrypted[i] = bytes[i] ^ key[i % key.length];
 }
 const text = new TextDecoder().decode(decrypted);
 const data = JSON.parse(text);
 processImportData(data, importPendingData.fileName, importPendingData.fileSize);
-// Auto trigger import after decrypt
 setTimeout(() => executeImport(), 300);
 return;
 } catch(e) {
@@ -1307,16 +1294,6 @@ safeGet('import-step-2').style.display = 'none';
 safeGet('import-file-input').value = '';
 importPendingData = null;
 }
-function bukaBackupRestoreMenu() {
-// Show simple choice
-const choice = prompt('Pilih:\n1. Export Backup\n2. Import Backup\n\nKetik 1 atau 2:');
-if (choice === '1') bukaBackupRestore();
-else if (choice === '2') {
-safeGet('importModal').style.display = 'grid';
-safeGet('import-step-1').style.display = 'block';
-safeGet('import-step-2').style.display = 'none';
-}
-}
 
 window.onload = function() {
 const apiUrlInput = safeGet('api-url-input');
@@ -1356,7 +1333,7 @@ function pilihHasilSearch(id, kat, type) { const dc = safeGet('searchDropdownCon
 function resetPencarian() { const vaultSearch = safeGet('vault-search'); const dc = safeGet('searchDropdownContainer'); const cb = safeGet('clearSearchBtn'); if (vaultSearch) vaultSearch.value = ""; if (dc) dc.style.display = 'none'; if (cb) cb.style.display = 'none'; showFolderRootView = false; renderCurrentView(); }
 function renderFavoritView() { const fv = accounts.filter(a => a.favorit), fn = notes.filter(n => n.favorit); const c = safeGet('account-list-container'); if (!c) return; if (fv.length === 0 && fn.length === 0) { safeSetHTML(c, '<p style="text-align:center;color:var(--slate-500);padding:20px;">Belum ada favorit.</p>'); return; } let h = ''; if (fv.length > 0) { h += '<div class="section-heading"><div class="section-heading-title"><i class="fa-solid fa-vault"></i> Akun Favorit</div><span class="section-heading-count">' + fv.length + '</span></div>'; h += renderItemsList(fv); } if (fn.length > 0) { h += '<div class="section-heading"><div class="section-heading-title"><i class="fa-solid fa-note-sticky"></i> Catatan Favorit</div><span class="section-heading-count">' + fn.length + '</span></div>'; h += renderNotesList(fn); } safeSetHTML(c, h); }
 function updateActiveTabUI(el, txt) { document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); if (el) el.classList.add('active'); const h2 = safeGet('nama-menu-halaman'); if (!h2) return; let iconClass = 'fa-vault'; if (currentTab === 'kerja') iconClass = 'fa-briefcase'; else if (currentTab === 'catatan') iconClass = 'fa-note-sticky'; else if (currentTab === 'favorit') iconClass = 'fa-star'; safeSetHTML(h2, `<i class="fa-solid ${iconClass}"></i><span>${txt}</span>`); const nb = safeGet('floating-note-btn'); const tambahAkun = document.querySelector('.floating-popup-item[onclick="bukaMenuTambah()"]'); if (currentTab === 'catatan') { if (nb) nb.style.display = 'flex'; if (tambahAkun) tambahAkun.style.display = 'none'; } else { if (nb) nb.style.display = 'none'; if (tambahAkun) tambahAkun.style.display = 'flex'; } }
-function gantiTabMenu(tab, el) { currentTab = tab; navigationStack = []; showFolderRootView = false; let t = "Beranda"; if (tab === 'kerja') t = "Akun Kerja"; else if (tab === 'keuangan') t = "Finansial"; else if (tab === 'favorit') t = "Favorit"; else if (tab === 'catatan') { t = "Catatan"; if (!notesLoaded && apiUrl) { showToast(" Memuat catatan...", "fa-spinner"); fetchData('notes', true); return; } } updateActiveTabUI(el, t); renderCurrentView(); }
+function gantiTabMenu(tab, el) { currentTab = tab; navigationStack = []; showFolderRootView = false; let t = "Beranda"; if (tab === 'kerja') t = "Akun Kerja"; else if (tab === 'keuangan') t = "Finansial"; else if (tab === 'favorit') t = "Favorit"; else if (tab === 'catatan') { t = "Catatan"; if (!notesLoaded && apiUrl) { showToast("📝 Memuat catatan...", "fa-spinner"); fetchData('notes', true); return; } } updateActiveTabUI(el, t); renderCurrentView(); }
 function toggleFloatingMenu(e) { e.stopPropagation(); const m = safeGet('floating-menu'); if (m) m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
 function bukaMenuTambah() { const fm = safeGet('floating-menu'); if (fm) fm.style.display = 'none'; openModal('vault'); const ki = safeGet('kategori-input'); if (ki && getCurrentPath()) ki.value = getCurrentPath(); }
 function bukaMenuTambahNote() { const fm = safeGet('floating-menu'); if (fm) fm.style.display = 'none'; openModal('notes'); const nki = safeGet('note-kategori-input'); if (nki && getCurrentPath()) nki.value = getCurrentPath(); }
@@ -1367,7 +1344,7 @@ function closeNoteModal() { const nm = safeGet('noteModal'); const nf = safeGet(
 function bukaSettingsPin() { toggleSidebar(false); const psm = safeGet('pinSettingsModal'); const pf = safeGet('pin-form'); if (psm) psm.style.display = 'grid'; if (pf) pf.reset(); }
 function closePinSettings() { const psm = safeGet('pinSettingsModal'); const pf = safeGet('pin-form'); if (psm) psm.style.display = 'none'; if (pf) pf.reset(); }
 const pinToggle = safeGet('pin-toggle');
-if (pinToggle) { pinToggle.addEventListener('change', function(e) { const on = e.target.checked; localStorage.setItem('vault_pin_enabled', on ? 'true' : 'false'); showToast(on ? "🔐 PIN Aktif" : " PIN Nonaktif", "fa-lock"); if (!on) { const ls = safeGet('lockScreen'); if (ls) ls.style.display = 'none'; sessionStorage.setItem('vault_unlocked', 'true'); } else { sessionStorage.removeItem('vault_unlocked'); } }); }
+if (pinToggle) { pinToggle.addEventListener('change', function(e) { const on = e.target.checked; localStorage.setItem('vault_pin_enabled', on ? 'true' : 'false'); showToast(on ? "🔐 PIN Aktif" : "🔓 PIN Nonaktif", "fa-lock"); if (!on) { const ls = safeGet('lockScreen'); if (ls) ls.style.display = 'none'; sessionStorage.setItem('vault_unlocked', 'true'); } else { sessionStorage.removeItem('vault_unlocked'); } }); }
 async function submitPinChange() { const c = safeGet('pin-current'); const n = safeGet('pin-new'); const cf = safeGet('pin-confirm'); const er = safeGet('pin-settings-error'); if (!c || !n || !cf || !er) return; if (!/^\d{4}$/.test(c.value) || !/^\d{4}$/.test(n.value) || !/^\d{4}$/.test(cf.value)) { er.textContent = "PIN harus 4 digit!"; er.style.display = 'block'; return; } if (n.value !== cf.value) { er.textContent = "PIN baru tidak cocok!"; er.style.display = 'block'; return; } const currentHash = await hashPin(c.value); if (currentHash !== getPinHash()) { er.textContent = "PIN saat ini salah!"; er.style.display = 'block'; return; } localStorage.setItem('vault_pin_hash', await hashPin(n.value)); closePinSettings(); showToast("✅ PIN berhasil diubah!", "fa-key"); }
 function bukaCustomDropdownLayer(ft) { ft = ft || 'vault'; const dl = safeGet('dropdownLayerModal'); if (dl) dl.style.display = 'flex'; buildDropdownOptions(ft); }
 function tutupCustomDropdownLayer() { const dl = safeGet('dropdownLayerModal'); if (dl) dl.style.display = 'none'; }
