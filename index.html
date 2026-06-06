@@ -545,23 +545,32 @@ input:checked + .slider:before { transform: translateX(20px); }
 .backup-checkbox i { color: #fff; font-size: 12px; opacity: 0; transition: opacity 0.2s; }
 .backup-category-item.selected .backup-checkbox i { opacity: 1; }
 .backup-category-info { flex: 1; min-width: 0; }
-.backup-category-name { font-size: 14px; font-weight: 600; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.backup-category-count { font-size: 11px; color: var(--slate-500); font-family: var(--font-standar-mono); margin-top: 2px; }
+.backup-category-name { font-size: 14px; font-weight: 600; color: var(--text-main); }
+.backup-category-count { font-size: 11px; color: var(--slate-500); font-family: var(--font-standar-mono); }
 .backup-select-all { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: rgba(139, 92, 246, 0.08); border: 1px dashed rgba(139, 92, 246, 0.3); border-radius: 12px; margin-bottom: 12px; cursor: pointer; }
-.backup-select-all:hover { background: rgba(139, 92, 246, 0.12); }
-.backup-select-all-text { font-size: 13px; font-weight: 700; color: var(--cyan); display: flex; align-items: center; gap: 6px; }
+.backup-select-all-text { font-size: 13px; font-weight: 700; color: var(--cyan); }
 .backup-select-all-count { font-size: 12px; color: var(--slate-500); font-family: var(--font-standar-mono); }
-.import-file-info { display: flex; align-items: center; gap: 12px; padding: 14px; background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 12px; margin-bottom: 16px; }
-.import-file-icon { width: 44px; height: 44px; border-radius: 12px; background: var(--cyan); color: #0f0a1a; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
-.import-file-details { flex: 1; min-width: 0; }
-.import-file-name { font-size: 14px; font-weight: 700; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.import-file-size { font-size: 11px; color: var(--slate-500); font-family: var(--font-standar-mono); margin-top: 2px; }
+.backup-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
+.backup-stat-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px; padding: 12px; text-align: center; }
+[data-theme="light"] .backup-stat-card { background: #faf5ff; border-color: #e9d5ff; }
+.backup-stat-value { font-size: 22px; font-weight: 800; color: var(--cyan); }
+.backup-stat-label { font-size: 10px; color: var(--slate-500); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
 .import-preview-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: rgba(255, 255, 255, 0.02); border-radius: 8px; margin-bottom: 6px; font-size: 12px; }
 [data-theme="light"] .import-preview-item { background: #faf5ff; }
 .import-preview-icon { width: 28px; height: 28px; border-radius: 6px; background: rgba(139, 92, 246, 0.15); color: var(--cyan); display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
 .import-preview-info { flex: 1; min-width: 0; }
 .import-preview-title { font-weight: 600; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .import-preview-meta { font-size: 10px; color: var(--slate-500); font-family: var(--font-standar-mono); }
+.import-file-info { display: flex; align-items: center; gap: 12px; padding: 14px; background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 12px; margin-bottom: 16px; }
+.import-file-icon { width: 44px; height: 44px; border-radius: 12px; background: var(--cyan); color: #0f0a1a; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.import-file-details { flex: 1; min-width: 0; }
+.import-file-name { font-size: 14px; font-weight: 700; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.import-file-size { font-size: 11px; color: var(--slate-500); font-family: var(--font-standar-mono); }
+.backup-password-wrapper { position: relative; margin-top: 12px; }
+.backup-password-input { width: 100%; padding: 12px 40px 12px 12px; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; color: var(--text-main); font-size: 14px; }
+.backup-password-toggle { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--slate-500); cursor: pointer; padding: 4px; }
+.backup-hint { font-size: 11px; color: var(--slate-500); margin-top: 8px; display: flex; align-items: flex-start; gap: 6px; }
+.backup-hint i { color: var(--cyan); margin-top: 2px; }
 </style>
 </head>
 <body>
@@ -756,6 +765,71 @@ input:checked + .slider:before { transform: translateX(20px); }
 <div class="nav-item" id="tab-favorit" onclick="navigateToRoot(); gantiTabMenu('favorit', this)"><i class="fa-solid fa-star"></i><span>Favorit</span></div>
 </nav>
 </div>
+
+<!-- MODAL EXPORT -->
+<div class="modal-overlay" id="exportModal">
+<div class="modal">
+<h3 style="margin-bottom:15px; color:var(--accent-color);"><i class="fa-solid fa-file-export"></i> Export Backup</h3>
+<div class="backup-stats">
+<div class="backup-stat-card">
+<div class="backup-stat-value" id="export-total-akun">0</div>
+<div class="backup-stat-label">Akun</div>
+</div>
+<div class="backup-stat-card">
+<div class="backup-stat-value" id="export-total-catatan">0</div>
+<div class="backup-stat-label">Catatan</div>
+</div>
+</div>
+<p style="font-size:13px; color:var(--slate-300); margin-bottom:12px; font-weight:600;">Pilih kategori yang ingin di-export:</p>
+<div class="backup-select-all" onclick="toggleSelectAllExport()">
+<span class="backup-select-all-text"><i class="fa-solid fa-check-double"></i> Pilih Semua</span>
+<span class="backup-select-all-count" id="export-selected-count">0 dipilih</span>
+</div>
+<div id="export-category-list" style="max-height:250px; overflow-y:auto; padding-right:4px;"></div>
+<div class="backup-password-wrapper">
+<input type="password" id="export-password" class="backup-password-input" placeholder="🔒 Password enkripsi (opsional)">
+<button class="backup-password-toggle" onclick="toggleExportPassword()"><i class="fa-solid fa-eye" id="export-pass-eye"></i></button>
+</div>
+<div class="backup-hint"><i class="fa-solid fa-circle-info"></i> <span>Kosongkan password jika tidak perlu enkripsi. File akan berformat JSON.</span></div>
+<div style="display:flex; gap:12px; margin-top:15px;">
+<button type="button" class="btn-pro" style="flex-grow:1; justify-content:center;" onclick="doExport()"><i class="fa-solid fa-download"></i> Download</button>
+<button type="button" style="color:var(--slate-500); background:none; border:none;" onclick="closeExportModal()">Batal</button>
+</div>
+</div>
+</div>
+
+<!-- MODAL IMPORT -->
+<div class="modal-overlay" id="importModal">
+<div class="modal">
+<h3 style="margin-bottom:15px; color:var(--accent-color);"><i class="fa-solid fa-file-import"></i> Import Backup</h3>
+<div id="import-step-1">
+<p style="font-size:13px; color:var(--slate-300); margin-bottom:12px;">Pilih file backup (.json) dari HP Anda:</p>
+<input type="file" id="import-file-input" accept=".json" style="display:none" onchange="handleImportFile(event)">
+<button class="btn-pro" style="width:100%; justify-content:center; padding:16px;" onclick="document.getElementById('import-file-input').click()">
+<i class="fa-solid fa-folder-open"></i> Pilih File Backup
+</button>
+</div>
+<div id="import-step-2" style="display:none;">
+<div class="import-file-info">
+<div class="import-file-icon"><i class="fa-solid fa-file-code"></i></div>
+<div class="import-file-details">
+<div class="import-file-name" id="import-file-name">backup.json</div>
+<div class="import-file-size" id="import-file-size">0 KB</div>
+</div>
+</div>
+<div id="import-password-section" style="display:none; margin-bottom:12px;">
+<p style="font-size:12px; color:var(--slate-300); margin-bottom:6px;">🔒 File terenkripsi. Masukkan password:</p>
+<input type="password" id="import-password" class="form-input" placeholder="Password backup" style="margin-bottom:0;">
+</div>
+<div id="import-preview" style="max-height:200px; overflow-y:auto; margin-bottom:12px;"></div>
+<div style="display:flex; gap:12px;">
+<button type="button" class="btn-pro" style="flex-grow:1; justify-content:center;" onclick="doImport()"><i class="fa-solid fa-upload"></i> Import</button>
+<button type="button" style="color:var(--slate-500); background:none; border:none;" onclick="closeImportModal()">Batal</button>
+</div>
+</div>
+</div>
+</div>
+
 <div class="modal-overlay" id="entryModal">
 <div class="modal">
 <h3 id="modal-title" style="margin-bottom:15px; color:var(--accent-color);">Kredensial Baru</h3>
@@ -887,69 +961,10 @@ function buildFolderTree(data) { const tree = {}; data.forEach(function(item) { 
 function countAllItems(node) { let count = node._items.length; Object.keys(node._subfolders).forEach(function(k) { count += countAllItems(node._subfolders[k]); }); return count; }
 function renderVaultPushNav() { const c = safeGet('account-list-container'); if (!c) return; let data = accounts; if (currentTab === 'kerja') data = accounts.filter(a => (a.kategori || '').toLowerCase().startsWith('kerja')); else if (currentTab === 'keuangan') data = accounts.filter(a => (a.kategori || '').toLowerCase().startsWith('keuangan')); if (data.length === 0) { safeSetHTML(c, '<p style="text-align:center;color:var(--slate-500);padding:20px;">Tidak ada data.</p>'); return; } const tree = buildFolderTree(data); const currentPath = getCurrentPath(); let currentNode = tree; if (currentPath) { const pathParts = currentPath.split('/'); for (let i = 0; i < pathParts.length; i++) { const part = pathParts[i]; if (currentNode[part]) { if (i < pathParts.length - 1) currentNode = currentNode[part]._subfolders; else currentNode = { [part]: currentNode[part] }; } else { safeSetHTML(c, '<p style="text-align:center;color:var(--slate-500);padding:20px;">Folder tidak ditemukan.</p>'); return; } } } safeSetHTML(c, renderFolderView(currentNode, currentPath)); }
 function renderFolderView(treeNode, parentPath) { let html = ''; const folderNames = Object.keys(treeNode); let directSubfolders = []; let directItems = []; folderNames.forEach(function(name) { const node = treeNode[name]; const fullPath = parentPath ? (parentPath + '/' + name) : name; directSubfolders.push({ name: name, path: fullPath, count: countAllItems(node), level: getFolderLevel(fullPath), node: node }); directItems = directItems.concat(node._items); }); if (parentPath === '' && directSubfolders.length > 0) { const hintShown = sessionStorage.getItem('longpress_hint_shown'); if (!hintShown) { html += `<div class="longpress-hint"><i class="fa-solid fa-hand-pointer"></i> <span>Tekan & tahan folder/item untuk membuka menu opsi</span></div>`; setTimeout(() => sessionStorage.setItem('longpress_hint_shown', '1'), 3000); } if (viewMode === 'grid') { html += '<div class="folder-grid">'; directSubfolders.forEach(function(sf) { const levelClass = getFolderCardLevelClass(sf.level); const iconClass = getFolderIconClass(sf.level); html += `<div class="folder-grid-card ${levelClass} longpress-target" data-lp-type="folder" data-lp-path="${sf.path.replace(/"/g, '&quot;')}" data-lp-name="${sf.name.replace(/"/g, '&quot;')}" onclick="navigateToFolder('${sf.path.replace(/'/g, "\\'")}')"><div class="folder-grid-icon ${levelClass}"><i class="${iconClass}"></i></div><div class="folder-grid-name">${sf.name}</div><div class="folder-grid-meta"><span class="folder-grid-count"><i class="fa-solid fa-cube"></i> ${sf.count}</span></div></div>`; }); html += '</div>'; } else { html += '<div class="folder-list">'; directSubfolders.forEach(function(sf) { const levelClass = getFolderCardLevelClass(sf.level); const iconClass = getFolderIconClass(sf.level); html += `<div class="folder-list-card ${levelClass} longpress-target" data-lp-type="folder" data-lp-path="${sf.path.replace(/"/g, '&quot;')}" data-lp-name="${sf.name.replace(/"/g, '&quot;')}" onclick="navigateToFolder('${sf.path.replace(/'/g, "\\'")}')"><div class="folder-list-icon ${levelClass}"><i class="${iconClass}"></i></div><div class="folder-list-info"><div class="folder-list-name">${sf.name}</div><div class="folder-list-path">${sf.path}</div></div><div class="folder-list-meta"><span class="folder-list-count"><i class="fa-solid fa-cube"></i> ${sf.count}</span></div></div>`; }); html += '</div>'; } if (directItems.length > 0) { html += '<div class="section-heading"><div class="section-heading-title"><i class="fa-solid fa-key"></i> Item Tanpa Folder</div><span class="section-heading-count">' + directItems.length + '</span></div>'; html += renderItemsList(directItems); } } else if (folderNames.length > 0) { const folderNode = treeNode[folderNames[0]]; const subSubfolders = Object.keys(folderNode._subfolders); if (subSubfolders.length > 0) { if (viewMode === 'grid') { html += '<div class="section-heading"><div class="section-heading-title"><i class="fa-solid fa-diagram-project"></i> Subfolder</div><span class="section-heading-count">' + subSubfolders.length + '</span></div>'; html += '<div class="folder-grid">'; subSubfolders.forEach(function(subName) { const subNode = folderNode._subfolders[subName]; const subPath = folderNode._path + '/' + subName; const subCount = countAllItems(subNode); const subLevel = getFolderLevel(subPath); const levelClass = getFolderCardLevelClass(subLevel); const iconClass = getFolderIconClass(subLevel); html += `<div class="folder-grid-card ${levelClass} longpress-target" data-lp-type="folder" data-lp-path="${subPath.replace(/"/g, '&quot;')}" data-lp-name="${subName.replace(/"/g, '&quot;')}" onclick="navigateToFolder('${subPath.replace(/'/g, "\\'")}')"><div class="folder-grid-icon ${levelClass}"><i class="${iconClass}"></i></div><div class="folder-grid-name">${subName}</div><div class="folder-grid-meta"><span class="folder-grid-count"><i class="fa-solid fa-cube"></i> ${subCount}</span></div></div>`; }); html += '</div>'; } else { html += '<div class="section-heading"><div class="section-heading-title"><i class="fa-solid fa-diagram-project"></i> Subfolder</div><span class="section-heading-count">' + subSubfolders.length + '</span></div>'; html += '<div class="folder-list">'; subSubfolders.forEach(function(subName) { const subNode = folderNode._subfolders[subName]; const subPath = folderNode._path + '/' + subName; const subCount = countAllItems(subNode); const subLevel = getFolderLevel(subPath); const levelClass = getFolderCardLevelClass(subLevel); const iconClass = getFolderIconClass(subLevel); html += `<div class="folder-list-card ${levelClass} longpress-target" data-lp-type="folder" data-lp-path="${subPath.replace(/"/g, '&quot;')}" data-lp-name="${subName.replace(/"/g, '&quot;')}" onclick="navigateToFolder('${subPath.replace(/'/g, "\\'")}')"><div class="folder-list-icon ${levelClass}"><i class="${iconClass}"></i></div><div class="folder-list-info"><div class="folder-list-name">${subName}</div><div class="folder-list-path">${subPath}</div></div><div class="folder-list-meta"><span class="folder-list-count"><i class="fa-solid fa-cube"></i> ${subCount}</span></div></div>`; }); html += '</div>'; } } if (folderNode._items.length > 0) { html += '<div class="section-heading"><div class="section-heading-title"><i class="fa-solid fa-key"></i> Item</div><span class="section-heading-count">' + folderNode._items.length + '</span></div>'; html += renderItemsList(folderNode._items); } } if (!html) html = '<p style="text-align:center;color:var(--slate-500);padding:20px;">Folder kosong.</p>'; return html; }
-
-// === FUNGSI BARU: Warna icon berdasarkan level folder ===
-function getLevelColor(kategori) {
-const level = getFolderLevel(kategori || '');
-if (level === 0) return 'var(--folder-level-0)';
-if (level === 1) return 'var(--folder-level-1)';
-return 'var(--folder-level-2)';
-}
-
-function renderItemsList(items) {
-let html = '';
-items.forEach(function(a) {
-const st = a.favorit === true || String(a.favorit).toLowerCase() === 'true';
-const folderPath = a.kategori || 'Umum';
-const levelColor = getLevelColor(folderPath);
-html += `<div class="app-item-row longpress-target" data-lp-type="item" data-lp-id="${a.id}" data-lp-datatype="vault" id="row-app-${a.id}" data-category="${folderPath}" onclick="openAccountDetailPopup('${a.id}', 'vault')">
-<div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
-<div style="display:flex;align-items:center;gap:8px;">
-<i class="fa-solid fa-grip-vertical drag-handle" title="Tahan untuk geser"></i>
-<i class="${dapatkanIkonAplikasi(folderPath, a.nama_aplikasi)}" style="color:${levelColor};font-size:20px;width:24px;text-align:center;"></i>
-<div style="display:flex;flex-direction:column;gap:1px;">
-<span style="font-size:16px;font-weight:600;"><span class="at-symbol">@</span>${a.username || '-'}</span>
-<span class="app-title" style="font-size:13px;color:var(--slate-500);">${a.nama_aplikasi}</span>
-</div>
-</div>
-<div style="display:flex;align-items:center;gap:2px;">
-<i class="fa-solid fa-star" onclick="event.stopPropagation(); toggleFavoriteCloud('${a.id}',event,'vault')" style="color:${st ? '#facc15' : 'var(--slate-500)'};cursor:pointer;font-size:14px;padding:6px;"></i>
-</div>
-</div>
-</div>`;
-});
-return html;
-}
-
+function renderItemsList(items) { let html = ''; items.forEach(function(a) { const st = a.favorit === true || String(a.favorit).toLowerCase() === 'true'; const folderPath = a.kategori || 'Umum'; html += `<div class="app-item-row longpress-target" data-lp-type="item" data-lp-id="${a.id}" data-lp-datatype="vault" id="row-app-${a.id}" data-category="${folderPath}" onclick="openAccountDetailPopup('${a.id}', 'vault')"><div style="display:flex;align-items:center;justify-content:space-between;width:100%;"><div style="display:flex;align-items:center;gap:8px;"><i class="fa-solid fa-grip-vertical drag-handle" title="Tahan untuk geser"></i><i class="${dapatkanIkonAplikasi(folderPath, a.nama_aplikasi)}" style="color:var(--accent-color);font-size:20px;width:24px;text-align:center;"></i><div style="display:flex;flex-direction:column;gap:1px;"><span style="font-size:16px;font-weight:600;"><span class="at-symbol">@</span>${a.username || '-'}</span><span class="app-title" style="font-size:13px;color:var(--slate-500);">${a.nama_aplikasi}</span></div></div><div style="display:flex;align-items:center;gap:2px;"><i class="fa-solid fa-star" onclick="event.stopPropagation(); toggleFavoriteCloud('${a.id}',event,'vault')" style="color:${st ? '#facc15' : 'var(--slate-500)'};cursor:pointer;font-size:14px;padding:6px;"></i></div></div></div>`; }); return html; }
 function renderNotesPushNav() { const c = safeGet('account-list-container'); if (!c) return; if (!notes || notes.length === 0) { safeSetHTML(c, '<p style="text-align:center;color:var(--slate-500);padding:20px;">Belum ada catatan.</p>'); return; } const tree = buildFolderTree(notes); const currentPath = getCurrentPath(); let currentNode = tree; if (currentPath) { const parts = currentPath.split('/'); for (let i = 0; i < parts.length; i++) { if (currentNode[parts[i]]) { if (i < parts.length - 1) currentNode = currentNode[parts[i]]._subfolders; else currentNode = { [parts[i]]: currentNode[parts[i]] }; } else { safeSetHTML(c, '<p style="text-align:center;color:var(--slate-500);padding:20px;">Folder tidak ditemukan.</p>'); return; } } } safeSetHTML(c, renderNotesFolderView(currentNode, currentPath)); }
 function renderNotesFolderView(treeNode, parentPath) { let html = ''; const folderNames = Object.keys(treeNode); let directSubfolders = []; let directItems = []; folderNames.forEach(function(name) { const node = treeNode[name]; const fullPath = parentPath ? (parentPath + '/' + name) : name; directSubfolders.push({ name: name, path: fullPath, count: countAllItems(node), level: getFolderLevel(fullPath) }); directItems = directItems.concat(node._items); }); if (parentPath === '' && directSubfolders.length > 0) { if (viewMode === 'grid') { html += '<div class="folder-grid">'; directSubfolders.forEach(function(sf) { const levelClass = getFolderCardLevelClass(sf.level); const iconClass = getFolderIconClass(sf.level); html += `<div class="folder-grid-card ${levelClass} longpress-target" data-lp-type="folder" data-lp-path="${sf.path.replace(/"/g, '&quot;')}" data-lp-name="${sf.name.replace(/"/g, '&quot;')}" data-lp-datatype="notes" onclick="navigateToFolder('${sf.path.replace(/'/g, "\\'")}')"><div class="folder-grid-icon ${levelClass}"><i class="${iconClass}"></i></div><div class="folder-grid-name">${sf.name}</div><div class="folder-grid-meta"><span class="folder-grid-count"><i class="fa-solid fa-note-sticky"></i> ${sf.count}</span></div></div>`; }); html += '</div>'; } else { html += '<div class="folder-list">'; directSubfolders.forEach(function(sf) { const levelClass = getFolderCardLevelClass(sf.level); const iconClass = getFolderIconClass(sf.level); html += `<div class="folder-list-card ${levelClass} longpress-target" data-lp-type="folder" data-lp-path="${sf.path.replace(/"/g, '&quot;')}" data-lp-name="${sf.name.replace(/"/g, '&quot;')}" data-lp-datatype="notes" onclick="navigateToFolder('${sf.path.replace(/'/g, "\\'")}')"><div class="folder-list-icon ${levelClass}"><i class="${iconClass}"></i></div><div class="folder-list-info"><div class="folder-list-name">${sf.name}</div><div class="folder-list-path">${sf.path}</div></div><div class="folder-list-meta"><span class="folder-list-count"><i class="fa-solid fa-note-sticky"></i> ${sf.count}</span></div></div>`; }); html += '</div>'; } if (directItems.length > 0) { html += '<div class="section-heading"><div class="section-heading-title"><i class="fa-solid fa-note-sticky"></i> Catatan Tanpa Folder</div><span class="section-heading-count">' + directItems.length + '</span></div>'; html += renderNotesList(directItems); } } else if (folderNames.length > 0) { const folderNode = treeNode[folderNames[0]]; const subSubfolders = Object.keys(folderNode._subfolders); if (subSubfolders.length > 0) { if (viewMode === 'grid') { html += '<div class="section-heading"><div class="section-heading-title"><i class="fa-solid fa-diagram-project"></i> Subfolder</div><span class="section-heading-count">' + subSubfolders.length + '</span></div>'; html += '<div class="folder-grid">'; subSubfolders.forEach(function(subName) { const subNode = folderNode._subfolders[subName]; const subPath = folderNode._path + '/' + subName; const subCount = countAllItems(subNode); const subLevel = getFolderLevel(subPath); const levelClass = getFolderCardLevelClass(subLevel); const iconClass = getFolderIconClass(subLevel); html += `<div class="folder-grid-card ${levelClass} longpress-target" data-lp-type="folder" data-lp-path="${subPath.replace(/"/g, '&quot;')}" data-lp-name="${subName.replace(/"/g, '&quot;')}" data-lp-datatype="notes" onclick="navigateToFolder('${subPath.replace(/'/g, "\\'")}')"><div class="folder-grid-icon ${levelClass}"><i class="${iconClass}"></i></div><div class="folder-grid-name">${subName}</div><div class="folder-grid-meta"><span class="folder-grid-count"><i class="fa-solid fa-note-sticky"></i> ${subCount}</span></div></div>`; }); html += '</div>'; } else { html += '<div class="section-heading"><div class="section-heading-title"><i class="fa-solid fa-diagram-project"></i> Subfolder</div><span class="section-heading-count">' + subSubfolders.length + '</span></div>'; html += '<div class="folder-list">'; subSubfolders.forEach(function(subName) { const subNode = folderNode._subfolders[subName]; const subPath = folderNode._path + '/' + subName; const subCount = countAllItems(subNode); const subLevel = getFolderLevel(subPath); const levelClass = getFolderCardLevelClass(subLevel); const iconClass = getFolderIconClass(subLevel); html += `<div class="folder-list-card ${levelClass} longpress-target" data-lp-type="folder" data-lp-path="${subPath.replace(/"/g, '&quot;')}" data-lp-name="${subName.replace(/"/g, '&quot;')}" data-lp-datatype="notes" onclick="navigateToFolder('${subPath.replace(/'/g, "\\'")}')"><div class="folder-list-icon ${levelClass}"><i class="${iconClass}"></i></div><div class="folder-list-info"><div class="folder-list-name">${subName}</div><div class="folder-list-path">${subPath}</div></div><div class="folder-list-meta"><span class="folder-list-count"><i class="fa-solid fa-note-sticky"></i> ${subCount}</span></div></div>`; }); html += '</div>'; } } if (folderNode._items.length > 0) { html += '<div class="section-heading"><div class="section-heading-title"><i class="fa-solid fa-note-sticky"></i> Catatan</div><span class="section-heading-count">' + folderNode._items.length + '</span></div>'; html += renderNotesList(folderNode._items); } } if (!html) html = '<p style="text-align:center;color:var(--slate-500);padding:20px;">Folder kosong.</p>'; return html; }
-
-function renderNotesList(items) {
-let html = '';
-items.forEach(function(n) {
-const fav = n.favorit === true || String(n.favorit).toLowerCase() === 'true';
-const ds = n.tanggal ? new Date(n.tanggal).toLocaleDateString('id-ID', {day:'numeric', month:'short'}) : '';
-const fp = n.kategori || 'Umum';
-const levelColor = getLevelColor(fp);
-html += `<div class="note-card longpress-target" data-lp-type="item" data-lp-id="${n.id}" data-lp-datatype="notes" id="row-note-${n.id}" data-category="${fp}" onclick="openAccountDetailPopup('${n.id}', 'notes')">
-<div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
-<div style="display:flex;align-items:center;gap:8px;">
-<i class="fa-solid fa-grip-vertical drag-handle" title="Tahan untuk geser"></i>
-<i class="fa-regular fa-note-sticky" style="color:${levelColor};font-size:14px;"></i>
-<div style="display:flex;flex-direction:column;">
-<span style="font-size:16px;font-weight:600;">${n.judul}</span>
-<span style="font-size:11px;color:var(--slate-500);">${fp} • ${ds}</span>
-</div>
-</div>
-<div style="display:flex;align-items:center;gap:2px;">
-<i class="fa-solid fa-star" onclick="event.stopPropagation(); toggleFavoriteCloud('${n.id}',event,'notes')" style="color:${fav ? '#facc15' : 'var(--slate-500)'};cursor:pointer;font-size:12px;padding:4px;"></i>
-</div>
-</div>
-</div>`;
-});
-return html;
-}
-
+function renderNotesList(items) { let html = ''; items.forEach(function(n) { const fav = n.favorit === true || String(n.favorit).toLowerCase() === 'true'; const ds = n.tanggal ? new Date(n.tanggal).toLocaleDateString('id-ID', {day:'numeric', month:'short'}) : ''; const fp = n.kategori || 'Umum'; html += `<div class="note-card longpress-target" data-lp-type="item" data-lp-id="${n.id}" data-lp-datatype="notes" id="row-note-${n.id}" data-category="${fp}" onclick="openAccountDetailPopup('${n.id}', 'notes')"><div style="display:flex;align-items:center;justify-content:space-between;width:100%;"><div style="display:flex;align-items:center;gap:8px;"><i class="fa-solid fa-grip-vertical drag-handle" title="Tahan untuk geser"></i><i class="fa-regular fa-note-sticky" style="color:var(--accent-color);font-size:14px;"></i><div style="display:flex;flex-direction:column;"><span style="font-size:16px;font-weight:600;">${n.judul}</span><span style="font-size:11px;color:var(--slate-500);">${fp} • ${ds}</span></div></div><div style="display:flex;align-items:center;gap:2px;"><i class="fa-solid fa-star" onclick="event.stopPropagation(); toggleFavoriteCloud('${n.id}',event,'notes')" style="color:${fav ? '#facc15' : 'var(--slate-500)'};cursor:pointer;font-size:12px;padding:4px;"></i></div></div></div>`; }); return html; }
 let contextMenuPendingAction = null;
 function showContextMenu(x, y, items) { const overlay = safeGet('contextMenuOverlay'); const menu = safeGet('contextMenu'); if (!overlay || !menu) return; let html = ''; items.forEach(item => { const dangerClass = item.danger ? ' danger' : ''; html += `<div class="context-menu-item${dangerClass}" onclick="${item.handler}"><div class="context-menu-icon ${item.iconClass}"><i class="${item.icon}"></i></div><div class="context-menu-text">${item.label}</div></div>`; }); safeSetHTML(menu, html); menu.style.left = x + 'px'; menu.style.top = y + 'px'; overlay.classList.add('active'); document.body.style.overflow = 'hidden'; requestAnimationFrame(() => { const rect = menu.getBoundingClientRect(); const vw = window.innerWidth; const vh = window.innerHeight; let newLeft = x, newTop = y; if (rect.right > vw - 12) newLeft = vw - rect.width - 12; if (rect.left < 12) newLeft = 12; if (rect.bottom > vh - 12) newTop = vh - rect.height - 12; if (rect.top < 12) newTop = 12; menu.style.left = newLeft + 'px'; menu.style.top = newTop + 'px'; }); }
 function closeContextMenu() { const overlay = safeGet('contextMenuOverlay'); if (overlay) overlay.classList.remove('active'); document.body.style.overflow = ''; contextMenuPendingAction = null; }
@@ -983,7 +998,7 @@ function pickerNavigateToLevel(index) { if (index < 0) pickerStack = []; else pi
 function createNewFolderInPicker() { const input = safeGet('picker-new-folder-input'); if (!input) return; const name = input.value.trim(); if (!name) { showToast('️ Nama folder tidak boleh kosong', 'fa-circle-exclamation'); return; } if (/[\/\\]/.test(name)) { showToast('⚠️ Nama tidak boleh berisi / atau \\', 'fa-circle-exclamation'); return; } const currentPath = getCurrentPickerPath(); const newPath = currentPath ? (currentPath + '/' + name) : name; const data = pickerDataType === 'notes' ? notes : accounts; const exists = data.some(item => { const kat = item.kategori || ''; return kat === newPath || kat.startsWith(newPath + '/'); }); if (exists) { showToast('️ Folder sudah ada', 'fa-circle-exclamation'); return; } pickerStack.push(newPath); input.value = ''; renderPickerView(); showToast(`📁 Folder "${name}" dibuat`, 'fa-folder-plus'); }
 function confirmFolderPick() { if (typeof pickerCallback === 'function') { const targetPath = getCurrentPickerPath(); pickerCallback(targetPath); } closeFolderPicker(); }
 function openFolderAction(folderPath, dataType) { const targetTab = dataType === 'notes' ? 'catatan' : 'beranda'; if (folderPath.toLowerCase().startsWith('kerja')) { currentTab = 'kerja'; updateActiveTabUI(safeGet('tab-kerja'), "Akun Kerja"); } else if (folderPath.toLowerCase().startsWith('keuangan')) { currentTab = 'keuangan'; } else { currentTab = targetTab; updateActiveTabUI(safeGet('tab-' + targetTab), targetTab === 'catatan' ? 'Catatan' : 'Beranda'); } navigationStack = [folderPath]; renderCurrentView(); }
-function moveFolderAction(folderPath, dataType) { openFolderPicker(dataType, (targetPath) => { if (targetPath === folderPath) { showToast('ℹ️ Tidak bisa pindah ke folder yang sama', 'fa-info-circle'); return; } if (targetPath.startsWith(folderPath + '/')) { showToast('⚠️ Tidak bisa pindah ke dalam subfolder sendiri', 'fa-circle-exclamation'); return; } const dataArray = dataType === 'notes' ? notes : accounts; const affectedItems = dataArray.filter(item => { const kat = item.kategori || ''; return kat === folderPath || kat.startsWith(folderPath + '/'); }); if (affectedItems.length === 0) { showToast('ℹ️ Tidak ada item dalam folder ini', 'fa-info-circle'); return; } const oldName = folderPath.split('/').pop(); const finalNewPath = targetPath ? (targetPath + '/' + oldName) : oldName; let movedCount = 0; affectedItems.forEach(item => { const oldKat = item.kategori; let newKat = (oldKat === folderPath) ? finalNewPath : oldKat.replace(folderPath, finalNewPath); item.kategori = newKat; syncCategoryChange(item.id, newKat, dataType); movedCount++; }); showToast(`📦 ${movedCount} item dipindahkan ke "${finalNewPath}"`, 'fa-check-circle'); renderCurrentView(); }, folderPath); }
+function moveFolderAction(folderPath, dataType) { openFolderPicker(dataType, (targetPath) => { if (targetPath === folderPath) { showToast('️ Tidak bisa pindah ke folder yang sama', 'fa-info-circle'); return; } if (targetPath.startsWith(folderPath + '/')) { showToast('⚠️ Tidak bisa pindah ke dalam subfolder sendiri', 'fa-circle-exclamation'); return; } const dataArray = dataType === 'notes' ? notes : accounts; const affectedItems = dataArray.filter(item => { const kat = item.kategori || ''; return kat === folderPath || kat.startsWith(folderPath + '/'); }); if (affectedItems.length === 0) { showToast('ℹ️ Tidak ada item dalam folder ini', 'fa-info-circle'); return; } const oldName = folderPath.split('/').pop(); const finalNewPath = targetPath ? (targetPath + '/' + oldName) : oldName; let movedCount = 0; affectedItems.forEach(item => { const oldKat = item.kategori; let newKat = (oldKat === folderPath) ? finalNewPath : oldKat.replace(folderPath, finalNewPath); item.kategori = newKat; syncCategoryChange(item.id, newKat, dataType); movedCount++; }); showToast(`📦 ${movedCount} item dipindahkan ke "${finalNewPath}"`, 'fa-check-circle'); renderCurrentView(); }, folderPath); }
 function renameFolderAction(folderPath, folderName, dataType) { const newName = prompt('Rename folder:', folderName); if (!newName || newName.trim() === '' || newName === folderName) return; if (/[\/\\]/.test(newName)) { showToast('⚠️ Nama tidak boleh berisi / atau \\', 'fa-circle-exclamation'); return; } const dataArray = dataType === 'notes' ? notes : accounts; const affectedItems = dataArray.filter(item => { const kat = item.kategori || ''; return kat === folderPath || kat.startsWith(folderPath + '/'); }); if (affectedItems.length === 0) return; const parentPath = folderPath.includes('/') ? folderPath.substring(0, folderPath.lastIndexOf('/')) : ''; const newPath = parentPath ? (parentPath + '/' + newName.trim()) : newName.trim(); const exists = dataArray.some(item => { const kat = item.kategori || ''; return kat !== folderPath && !kat.startsWith(folderPath + '/') && (kat === newPath || kat.startsWith(newPath + '/')); }); if (exists) { showToast('⚠️ Folder dengan nama itu sudah ada', 'fa-circle-exclamation'); return; } let renamedCount = 0; affectedItems.forEach(item => { const oldKat = item.kategori; let newKat = (oldKat === folderPath) ? newPath : oldKat.replace(folderPath, newPath); item.kategori = newKat; syncCategoryChange(item.id, newKat, dataType); renamedCount++; }); showToast(`✏️ ${renamedCount} item di-rename ke "${newName.trim()}"`, 'fa-check-circle'); renderCurrentView(); }
 function deleteFolderAction(folderPath, dataType) { const dataArray = dataType === 'notes' ? notes : accounts; const affectedItems = dataArray.filter(item => { const kat = item.kategori || ''; return kat === folderPath || kat.startsWith(folderPath + '/'); }); if (affectedItems.length === 0) { showToast('ℹ️ Folder sudah kosong', 'fa-info-circle'); return; } if (!confirm(`Hapus folder "${folderPath}" beserta ${affectedItems.length} item di dalamnya? Tindakan ini tidak bisa dibatalkan.`)) return; affectedItems.forEach(item => { const p = new URLSearchParams({action: "delete", id: item.id, data_type: dataType}); if (isOnline && apiUrl) fetch(apiUrl, { method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: p }).catch(() => addToSyncQueue(p, `Hapus: ${dataType}`)); else addToSyncQueue(p, `Hapus: ${dataType}`); }); const ids = affectedItems.map(i => String(i.id)); if (dataType === 'notes') notes = notes.filter(n => !ids.includes(String(n.id))); else accounts = accounts.filter(a => !ids.includes(String(a.id))); showToast(`🗑️ ${affectedItems.length} item dihapus`, 'fa-trash'); renderCurrentView(); renderStats(); }
 const DEFAULT_PIN_HASH = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4";
@@ -1020,14 +1035,14 @@ document.addEventListener('fullscreenchange', () => { const sidebarIcon = docume
 // === BACKUP & RESTORE FUNCTIONS ===
 function bukaBackupRestore() {
 toggleSidebar(false);
+const modal = safeGet('exportModal');
 exportSelectedCategories.clear();
 safeSetHTML(safeGet('export-category-list'), '');
 safeSetText(safeGet('export-total-akun'), accounts.length);
 safeSetText(safeGet('export-total-catatan'), notes.length);
 safeSetText(safeGet('export-selected-count'), '0 dipilih');
 safeGet('export-password').value = '';
-const modal = safeGet('exportModal');
-if (modal) modal.style.display = 'grid';
+modal.style.display = 'grid';
 buildExportCategoryList();
 }
 function buildExportCategoryList() {
@@ -1045,6 +1060,7 @@ let html = '';
 cats.forEach(cat => {
 const akunCount = accounts.filter(a => a.kategori === cat).length;
 const catatanCount = notes.filter(n => n.kategori === cat).length;
+const total = akunCount + catatanCount;
 html += `<div class="backup-category-item" data-category="${cat.replace(/"/g, '&quot;')}" onclick="toggleExportCategory('${cat.replace(/'/g, "\\'")}')">
 <div class="backup-checkbox"><i class="fa-solid fa-check"></i></div>
 <div class="backup-category-info">
@@ -1056,8 +1072,11 @@ html += `<div class="backup-category-item" data-category="${cat.replace(/"/g, '&
 safeSetHTML(list, html);
 }
 function toggleExportCategory(cat) {
-if (exportSelectedCategories.has(cat)) { exportSelectedCategories.delete(cat); }
-else { exportSelectedCategories.add(cat); }
+if (exportSelectedCategories.has(cat)) {
+exportSelectedCategories.delete(cat);
+} else {
+exportSelectedCategories.add(cat);
+}
 document.querySelectorAll('.backup-category-item').forEach(el => {
 if (el.dataset.category === cat) {
 if (exportSelectedCategories.has(cat)) el.classList.add('selected');
@@ -1070,8 +1089,11 @@ function toggleSelectAllExport() {
 const allCats = new Set();
 accounts.forEach(a => { if (a.kategori) allCats.add(a.kategori); });
 notes.forEach(n => { if (n.kategori) allCats.add(n.kategori); });
-if (exportSelectedCategories.size === allCats.size) { exportSelectedCategories.clear(); }
-else { allCats.forEach(c => exportSelectedCategories.add(c)); }
+if (exportSelectedCategories.size === allCats.size) {
+exportSelectedCategories.clear();
+} else {
+allCats.forEach(c => exportSelectedCategories.add(c));
+}
 document.querySelectorAll('.backup-category-item').forEach(el => {
 if (exportSelectedCategories.has(el.dataset.category)) el.classList.add('selected');
 else el.classList.remove('selected');
@@ -1085,7 +1107,10 @@ if (inp.type === 'password') { inp.type = 'text'; eye.className = 'fa-solid fa-e
 else { inp.type = 'password'; eye.className = 'fa-solid fa-eye'; }
 }
 async function doExport() {
-if (exportSelectedCategories.size === 0) { showToast('⚠️ Pilih minimal 1 kategori!', 'fa-circle-exclamation'); return; }
+if (exportSelectedCategories.size === 0) {
+showToast('⚠️ Pilih minimal 1 kategori!', 'fa-circle-exclamation');
+return;
+}
 showToast('🔄 Memproses backup...', 'fa-spinner');
 const password = safeGet('export-password').value.trim();
 const exportData = {
@@ -1103,9 +1128,14 @@ const encoder = new TextEncoder();
 const key = encoder.encode(password);
 const data = encoder.encode(fileContent);
 const encrypted = new Uint8Array(data.length);
-for (let i = 0; i < data.length; i++) { encrypted[i] = data[i] ^ key[i % key.length]; }
+for (let i = 0; i < data.length; i++) {
+encrypted[i] = data[i] ^ key[i % key.length];
+}
 fileContent = 'RV_ENC:' + btoa(String.fromCharCode(...encrypted));
-} catch(e) { showToast('❌ Gagal enkripsi!', 'fa-circle-xmark'); return; }
+} catch(e) {
+showToast('❌ Gagal enkripsi!', 'fa-circle-xmark');
+return;
+}
 }
 const blob = new Blob([fileContent], { type: 'application/json' });
 const url = URL.createObjectURL(blob);
@@ -1119,35 +1149,50 @@ URL.revokeObjectURL(url);
 closeExportModal();
 showToast(`✅ Backup ${exportSelectedCategories.size} kategori berhasil!`, 'fa-check-circle');
 }
-function closeExportModal() { const modal = safeGet('exportModal'); if (modal) modal.style.display = 'none'; }
+function closeExportModal() {
+const modal = safeGet('exportModal');
+if (modal) modal.style.display = 'none';
+}
 function handleImportFile(event) {
 const file = event.target.files[0];
 if (!file) return;
-if (!file.name.endsWith('.json')) { showToast('⚠️ File harus berformat .json!', 'fa-circle-exclamation'); return; }
+if (!file.name.endsWith('.json')) {
+showToast('⚠️ File harus berformat .json!', 'fa-circle-exclamation');
+return;
+}
 const reader = new FileReader();
 reader.onload = function(e) {
 try {
 let content = e.target.result;
 let isEncrypted = false;
-if (content.startsWith('RV_ENC:')) { isEncrypted = true; content = content.substring(7); }
+if (content.startsWith('RV_ENC:')) {
+isEncrypted = true;
+content = content.substring(7);
+}
 if (isEncrypted) {
 safeGet('import-password-section').style.display = 'block';
-importPendingData = { bytes: content, isEncrypted: true, fileName: file.name, fileSize: file.size };
+importPendingData = { content, isEncrypted: true, fileName: file.name, fileSize: file.size };
 safeSetText(safeGet('import-file-name'), file.name);
 safeSetText(safeGet('import-file-size'), (file.size / 1024).toFixed(2) + ' KB');
 safeGet('import-step-1').style.display = 'none';
 safeGet('import-step-2').style.display = 'block';
 safeSetHTML(safeGet('import-preview'), '<p style="text-align:center;color:var(--slate-500);padding:20px;">🔒 Masukkan password untuk preview</p>');
+return;
 } else {
 const data = JSON.parse(e.target.result);
 processImportData(data, file.name, file.size);
 }
-} catch(err) { showToast('❌ File tidak valid!', 'fa-circle-xmark'); }
+} catch(err) {
+showToast('❌ File tidak valid!', 'fa-circle-xmark');
+}
 };
 reader.readAsText(file);
 }
 function processImportData(data, fileName, fileSize) {
-if (!data.vault && !data.notes) { showToast('⚠️ Format file tidak dikenali!', 'fa-circle-xmark'); return; }
+if (!data.vault && !data.notes) {
+showToast('⚠️ Format file tidak dikenali!', 'fa-circle-xmark');
+return;
+}
 importPendingData = { data, fileName, fileSize };
 safeSetText(safeGet('import-file-name'), fileName);
 safeSetText(safeGet('import-file-size'), (fileSize / 1024).toFixed(2) + ' KB');
@@ -1160,9 +1205,8 @@ previewHtml += `<div style="margin-bottom:10px;font-size:12px;color:var(--slate-
 cats.slice(0, 8).forEach(cat => {
 const v = (data.vault||[]).filter(a => a.kategori === cat).length;
 const n = (data.notes||[]).filter(a => a.kategori === cat).length;
-const levelColor = getLevelColor(cat);
 previewHtml += `<div class="import-preview-item">
-<div class="import-preview-icon" style="color:${levelColor};background:rgba(139,92,246,0.1);"><i class="fa-solid fa-folder"></i></div>
+<div class="import-preview-icon"><i class="fa-solid fa-folder"></i></div>
 <div class="import-preview-info">
 <div class="import-preview-title">${cat}</div>
 <div class="import-preview-meta">${v} akun • ${n} catatan</div>
@@ -1176,39 +1220,80 @@ function doImport() {
 if (!importPendingData) return;
 if (importPendingData.isEncrypted) {
 const password = safeGet('import-password').value;
-if (!password) { showToast('⚠️ Masukkan password!', 'fa-circle-exclamation'); return; }
+if (!password) {
+showToast('⚠️ Masukkan password!', 'fa-circle-exclamation');
+return;
+}
 try {
 const key = new TextEncoder().encode(password);
-const decoded = atob(importPendingData.bytes);
+const decoded = atob(importPendingData.content);
 const bytes = new Uint8Array(decoded.length);
 for (let i = 0; i < decoded.length; i++) bytes[i] = decoded.charCodeAt(i);
 const decrypted = new Uint8Array(bytes.length);
-for (let i = 0; i < bytes.length; i++) { decrypted[i] = bytes[i] ^ key[i % key.length]; }
+for (let i = 0; i < bytes.length; i++) {
+decrypted[i] = bytes[i] ^ key[i % key.length];
+}
 const text = new TextDecoder().decode(decrypted);
 const data = JSON.parse(text);
 processImportData(data, importPendingData.fileName, importPendingData.fileSize);
 setTimeout(() => executeImport(), 300);
 return;
-} catch(e) { showToast('❌ Password salah atau file corrupt!', 'fa-circle-xmark'); return; }
+} catch(e) {
+showToast('❌ Password salah atau file corrupt!', 'fa-circle-xmark');
+return;
+}
 }
 executeImport();
 }
 function executeImport() {
 if (!importPendingData || !importPendingData.data) return;
 const data = importPendingData.data;
-if (!confirm(`Import ${data.categories?.length || '?'} kategori?\n\n${(data.vault||[]).length} akun & ${(data.notes||[]).length} catatan akan ditambahkan ke database Anda.`)) { closeImportModal(); return; }
+if (!confirm(`Import ${data.categories?.length || '?'} kategori?\n\n${(data.vault||[]).length} akun & ${(data.notes||[]).length} catatan akan ditambahkan ke database Anda.`)) {
+closeImportModal();
+return;
+}
 let addedAkun = 0, addedCatatan = 0;
 (data.vault || []).forEach(a => {
-if (!accounts.find(x => x.id === a.id)) { accounts.push(a); addedAkun++; if (isOnline && apiUrl) { const p = new URLSearchParams(); p.append("action", "create"); p.append("data_type", "vault"); p.append("kategori", a.kategori); p.append("nama_aplikasi", a.nama_aplikasi); p.append("username", a.username); p.append("email", a.email); p.append("password", a.password); p.append("ket", a.ket||''); p.append("ket_dua", a.ket_dua||''); fetch(apiUrl, { method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: p }).catch(() => {}); } }
+if (!accounts.find(x => x.id === a.id)) {
+accounts.push(a);
+addedAkun++;
+if (isOnline && apiUrl) {
+const p = new URLSearchParams();
+p.append("action", "create"); p.append("data_type", "vault");
+p.append("kategori", a.kategori); p.append("nama_aplikasi", a.nama_aplikasi);
+p.append("username", a.username); p.append("email", a.email);
+p.append("password", a.password); p.append("ket", a.ket||''); p.append("ket_dua", a.ket_dua||'');
+fetch(apiUrl, { method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: p }).catch(() => {});
+}
+}
 });
 (data.notes || []).forEach(n => {
-if (!notes.find(x => x.id === n.id)) { notes.push(n); addedCatatan++; if (isOnline && apiUrl) { const p = new URLSearchParams(); p.append("action", "create"); p.append("data_type", "notes"); p.append("kategori", n.kategori); p.append("judul", n.judul); p.append("isi", n.isi); fetch(apiUrl, { method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: p }).catch(() => {}); } }
+if (!notes.find(x => x.id === n.id)) {
+notes.push(n);
+addedCatatan++;
+if (isOnline && apiUrl) {
+const p = new URLSearchParams();
+p.append("action", "create"); p.append("data_type", "notes");
+p.append("kategori", n.kategori); p.append("judul", n.judul);
+p.append("isi", n.isi);
+fetch(apiUrl, { method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: p }).catch(() => {});
+}
+}
 });
-renderCurrentView(); renderStats(); closeImportModal();
+renderCurrentView();
+renderStats();
+closeImportModal();
 showToast(`✅ Import berhasil! +${addedAkun} akun, +${addedCatatan} catatan`, 'fa-check-circle');
 importPendingData = null;
 }
-function closeImportModal() { const modal = safeGet('importModal'); if (modal) modal.style.display = 'none'; safeGet('import-step-1').style.display = 'block'; safeGet('import-step-2').style.display = 'none'; safeGet('import-file-input').value = ''; importPendingData = null; }
+function closeImportModal() {
+const modal = safeGet('importModal');
+if (modal) modal.style.display = 'none';
+safeGet('import-step-1').style.display = 'block';
+safeGet('import-step-2').style.display = 'none';
+safeGet('import-file-input').value = '';
+importPendingData = null;
+}
 
 window.onload = function() {
 const apiUrlInput = safeGet('api-url-input');
@@ -1242,68 +1327,13 @@ function closeAccountDetailPopup() { const popup = safeGet('accountDetailPopup')
 function togglePopupPassword() { const passText = safeGet('popup-pass-text'); const passEye = safeGet('popup-pass-eye'); if (!passText || !passEye) return; if (passText.classList.contains('visible')) { passText.classList.remove('visible'); passEye.className = 'fa-solid fa-eye'; } else { passText.classList.add('visible'); passEye.className = 'fa-solid fa-eye-slash'; } }
 function editFromPopup() { if (!currentPopupAccountId) return; closeAccountDetailPopup(); editEntry(currentPopupAccountId, currentPopupAccountType); }
 function deleteFromPopup() { if (!currentPopupAccountId) return; closeAccountDetailPopup(); deleteEntry(currentPopupAccountId, currentPopupAccountType); }
-
-function liveSearchDropdown() {
-const vaultSearch = safeGet('vault-search');
-const dc = safeGet('searchDropdownContainer');
-const cb = safeGet('clearSearchBtn');
-if (!vaultSearch || !dc || !cb) return;
-const rawQuery = vaultSearch.value;
-if (!rawQuery || normalizeText(rawQuery) === '') { dc.style.display = 'none'; cb.style.display = 'none'; return; }
-cb.style.display = 'block';
-const query = normalizeText(rawQuery);
-let hr = "";
-if (currentTab !== 'catatan') {
-const uniqueCats = [...new Set(accounts.map(a => a.kategori).filter(Boolean))];
-const matchedCats = uniqueCats.filter(c => isSearchMatch(c, query));
-const matchedAccounts = accounts.filter(a => isSearchMatch(a.nama_aplikasi, query) || isSearchMatch(a.kategori, query) || isSearchMatch(a.username, query) || isSearchMatch(a.email, query));
-matchedCats.forEach(function(c) {
-const lvl = getFolderLevel(c);
-const iconClass = getFolderIconClass(lvl);
-const levelColorClass = getFolderIconLevelClass(lvl);
-hr += `<div class="search-drop-row folder-type" onclick="pilihFolderSearch('${c.replace(/'/g,"\\'")}')">
-<div class="search-drop-info">
-<div class="search-drop-icon ${levelColorClass}"><i class="${iconClass}"></i></div>
-<div class="search-drop-text"><strong>[Folder] ${c}</strong></div>
-</div>
-<span class="search-drop-folder">FOLDER</span>
-</div>`;
-});
-matchedAccounts.forEach(function(a) {
-const appIcon = dapatkanIkonAplikasi(a.kategori, a.nama_aplikasi);
-const itemColor = getLevelColor(a.kategori);
-hr += `<div class="search-drop-row" onclick="pilihHasilSearch('${a.id}','${(a.kategori||'').replace(/'/g,"\\'")}','vault')">
-<div class="search-drop-info">
-<div class="search-drop-icon item-icon" style="color:${itemColor};"><i class="${appIcon}"></i></div>
-<div class="search-drop-text"><strong>${a.nama_aplikasi||'Tanpa Nama'}</strong><small>@${a.username || a.email || '-'}</small></div>
-</div>
-<span class="search-drop-folder">${a.kategori||'Umum'}</span>
-</div>`;
-});
-}
-const matchedNotes = notes.filter(n => isSearchMatch(n.judul, query) || isSearchMatch(n.isi, query) || isSearchMatch(n.kategori, query));
-matchedNotes.forEach(function(n) {
-const noteColor = getLevelColor(n.kategori);
-hr += `<div class="search-drop-row" onclick="pilihHasilSearch('${n.id}','${(n.kategori||'Umum').replace(/'/g,"\\'")}','notes')">
-<div class="search-drop-info">
-<div class="search-drop-icon item-icon" style="color:${noteColor};"><i class="fa-solid fa-note-sticky"></i></div>
-<div class="search-drop-text"><strong>${n.judul||'Tanpa Judul'}</strong></div>
-</div>
-${n.kategori ? `<span class="search-drop-folder">${n.kategori}</span>` : ''}
-</div>`;
-});
-safeSetHTML(dc, hr || '<div style="padding:12px;text-align:center;color:var(--slate-500);">Tidak ditemukan</div>');
-const searchBox = safeGet('searchBoxContainer');
-if (searchBox) { const rect = searchBox.getBoundingClientRect(); dc.style.top = (rect.bottom + 8) + 'px'; }
-dc.style.display = 'block';
-}
-
+function liveSearchDropdown() { const vaultSearch = safeGet('vault-search'); const dc = safeGet('searchDropdownContainer'); const cb = safeGet('clearSearchBtn'); if (!vaultSearch || !dc || !cb) return; const rawQuery = vaultSearch.value; if (!rawQuery || normalizeText(rawQuery) === '') { dc.style.display = 'none'; cb.style.display = 'none'; return; } cb.style.display = 'block'; const query = normalizeText(rawQuery); let hr = ""; if (currentTab !== 'catatan') { const uniqueCats = [...new Set(accounts.map(a => a.kategori).filter(Boolean))]; const matchedCats = uniqueCats.filter(c => isSearchMatch(c, query)); const matchedAccounts = accounts.filter(a => isSearchMatch(a.nama_aplikasi, query) || isSearchMatch(a.kategori, query) || isSearchMatch(a.username, query) || isSearchMatch(a.email, query)); matchedCats.forEach(function(c) { const lvl = getFolderLevel(c); const iconClass = getFolderIconClass(lvl); const levelColorClass = getFolderIconLevelClass(lvl); hr += `<div class="search-drop-row folder-type" onclick="pilihFolderSearch('${c.replace(/'/g,"\\'")}')"><div class="search-drop-info"><div class="search-drop-icon ${levelColorClass}"><i class="${iconClass}"></i></div><div class="search-drop-text"><strong>[Folder] ${c}</strong></div></div><span class="search-drop-folder">FOLDER</span></div>`; }); matchedAccounts.forEach(function(a) { const appIcon = dapatkanIkonAplikasi(a.kategori, a.nama_aplikasi); hr += `<div class="search-drop-row" onclick="pilihHasilSearch('${a.id}','${(a.kategori||'').replace(/'/g,"\\'")}','vault')"><div class="search-drop-info"><div class="search-drop-icon item-icon"><i class="${appIcon}"></i></div><div class="search-drop-text"><strong>${a.nama_aplikasi||'Tanpa Nama'}</strong><small>@${a.username || a.email || '-'}</small></div></div><span class="search-drop-folder">${a.kategori||'Umum'}</span></div>`; }); } const matchedNotes = notes.filter(n => isSearchMatch(n.judul, query) || isSearchMatch(n.isi, query) || isSearchMatch(n.kategori, query)); matchedNotes.forEach(function(n) { hr += `<div class="search-drop-row" onclick="pilihHasilSearch('${n.id}','${(n.kategori||'Umum').replace(/'/g,"\\'")}','notes')"><div class="search-drop-info"><div class="search-drop-icon item-icon"><i class="fa-solid fa-note-sticky"></i></div><div class="search-drop-text"><strong>${n.judul||'Tanpa Judul'}</strong></div></div>${n.kategori ? `<span class="search-drop-folder">${n.kategori}</span>` : ''}</div>`; }); safeSetHTML(dc, hr || '<div style="padding:12px;text-align:center;color:var(--slate-500);">Tidak ditemukan</div>'); const searchBox = safeGet('searchBoxContainer'); if (searchBox) { const rect = searchBox.getBoundingClientRect(); dc.style.top = (rect.bottom + 8) + 'px'; } dc.style.display = 'block'; }
 function pilihFolderSearch(k) { const dc = safeGet('searchDropdownContainer'); const vaultSearch = safeGet('vault-search'); const cb = safeGet('clearSearchBtn'); if (dc) dc.style.display = 'none'; if (vaultSearch) vaultSearch.value = ''; if (cb) cb.style.display = 'none'; showFolderRootView = false; if (k.toLowerCase().startsWith("kerja")) { currentTab = 'kerja'; updateActiveTabUI(safeGet('tab-kerja'), "Akun Kerja"); } else if (k.toLowerCase().startsWith("keuangan")) { currentTab = 'keuangan'; } else { currentTab = 'beranda'; updateActiveTabUI(safeGet('tab-beranda'), "Beranda"); } navigationStack = [k]; renderCurrentView(); }
 function pilihHasilSearch(id, kat, type) { const dc = safeGet('searchDropdownContainer'); const vaultSearch = safeGet('vault-search'); const cb = safeGet('clearSearchBtn'); if (dc) dc.style.display = 'none'; if (vaultSearch) vaultSearch.value = ''; if (cb) cb.style.display = 'none'; showFolderRootView = false; if (type === 'notes') { currentTab = 'catatan'; updateActiveTabUI(safeGet('tab-catatan'), "Catatan"); if (!notesLoaded && apiUrl) { fetchData('notes', true); } } else { if ((kat||'').toLowerCase().startsWith("kerja")) { currentTab = 'kerja'; updateActiveTabUI(safeGet('tab-kerja'), "Akun Kerja"); } else if ((kat||'').toLowerCase().startsWith("keuangan")) { currentTab = 'keuangan'; } else { currentTab = 'beranda'; updateActiveTabUI(safeGet('tab-beranda'), "Beranda"); } } navigationStack = []; if (kat) navigationStack = [kat]; renderCurrentView(); setTimeout(() => { openAccountDetailPopup(id, type); const r = safeGet((type === 'notes' ? 'row-note-' : 'row-app-') + id); if (r) { r.scrollIntoView({behavior:'smooth', block:'center'}); r.style.outline = "2px solid var(--accent-color)"; setTimeout(() => r.style.outline = 'none', 2000); } }, 150); }
 function resetPencarian() { const vaultSearch = safeGet('vault-search'); const dc = safeGet('searchDropdownContainer'); const cb = safeGet('clearSearchBtn'); if (vaultSearch) vaultSearch.value = ""; if (dc) dc.style.display = 'none'; if (cb) cb.style.display = 'none'; showFolderRootView = false; renderCurrentView(); }
 function renderFavoritView() { const fv = accounts.filter(a => a.favorit), fn = notes.filter(n => n.favorit); const c = safeGet('account-list-container'); if (!c) return; if (fv.length === 0 && fn.length === 0) { safeSetHTML(c, '<p style="text-align:center;color:var(--slate-500);padding:20px;">Belum ada favorit.</p>'); return; } let h = ''; if (fv.length > 0) { h += '<div class="section-heading"><div class="section-heading-title"><i class="fa-solid fa-vault"></i> Akun Favorit</div><span class="section-heading-count">' + fv.length + '</span></div>'; h += renderItemsList(fv); } if (fn.length > 0) { h += '<div class="section-heading"><div class="section-heading-title"><i class="fa-solid fa-note-sticky"></i> Catatan Favorit</div><span class="section-heading-count">' + fn.length + '</span></div>'; h += renderNotesList(fn); } safeSetHTML(c, h); }
 function updateActiveTabUI(el, txt) { document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); if (el) el.classList.add('active'); const h2 = safeGet('nama-menu-halaman'); if (!h2) return; let iconClass = 'fa-vault'; if (currentTab === 'kerja') iconClass = 'fa-briefcase'; else if (currentTab === 'catatan') iconClass = 'fa-note-sticky'; else if (currentTab === 'favorit') iconClass = 'fa-star'; safeSetHTML(h2, `<i class="fa-solid ${iconClass}"></i><span>${txt}</span>`); const nb = safeGet('floating-note-btn'); const tambahAkun = document.querySelector('.floating-popup-item[onclick="bukaMenuTambah()"]'); if (currentTab === 'catatan') { if (nb) nb.style.display = 'flex'; if (tambahAkun) tambahAkun.style.display = 'none'; } else { if (nb) nb.style.display = 'none'; if (tambahAkun) tambahAkun.style.display = 'flex'; } }
-function gantiTabMenu(tab, el) { currentTab = tab; navigationStack = []; showFolderRootView = false; let t = "Beranda"; if (tab === 'kerja') t = "Akun Kerja"; else if (tab === 'keuangan') t = "Finansial"; else if (tab === 'favorit') t = "Favorit"; else if (tab === 'catatan') { t = "Catatan"; if (!notesLoaded && apiUrl) { showToast("🔄 Memuat catatan...", "fa-spinner"); fetchData('notes', true); return; } } updateActiveTabUI(el, t); renderCurrentView(); }
+function gantiTabMenu(tab, el) { currentTab = tab; navigationStack = []; showFolderRootView = false; let t = "Beranda"; if (tab === 'kerja') t = "Akun Kerja"; else if (tab === 'keuangan') t = "Finansial"; else if (tab === 'favorit') t = "Favorit"; else if (tab === 'catatan') { t = "Catatan"; if (!notesLoaded && apiUrl) { showToast("📝 Memuat catatan...", "fa-spinner"); fetchData('notes', true); return; } } updateActiveTabUI(el, t); renderCurrentView(); }
 function toggleFloatingMenu(e) { e.stopPropagation(); const m = safeGet('floating-menu'); if (m) m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
 function bukaMenuTambah() { const fm = safeGet('floating-menu'); if (fm) fm.style.display = 'none'; openModal('vault'); const ki = safeGet('kategori-input'); if (ki && getCurrentPath()) ki.value = getCurrentPath(); }
 function bukaMenuTambahNote() { const fm = safeGet('floating-menu'); if (fm) fm.style.display = 'none'; openModal('notes'); const nki = safeGet('note-kategori-input'); if (nki && getCurrentPath()) nki.value = getCurrentPath(); }
@@ -1414,4 +1444,4 @@ window.closeImportModal = closeImportModal;
 })();
 </script>
 </body>
-  </html>
+</html>
