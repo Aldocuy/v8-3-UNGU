@@ -951,7 +951,7 @@ let importPendingData = null;
 const LONG_PRESS_DELAY = 400;
 const LONG_PRESS_MOVE_THRESHOLD = 10;
 let longPressState = { timer: null, active: false, target: null, startX: 0, startY: 0, triggered: false, lastX: 0, lastY: 0 };
-function safeGet(id) { const el = document.getElementById(id); if (!el) console.warn('⚠️ Element not found:', id); return el; }
+function safeGet(id) { const el = document.getElementById(id); if (!el) console.warn('️ Element not found:', id); return el; }
 function safeSetHTML(el, html) { if (el) el.innerHTML = html; }
 function safeSetText(el, text) { if (el) el.textContent = text; }
 function getFolderIconClass(level) { if (level === 0) return 'fa-solid fa-diagram-project'; if (level === 1) return 'fa-solid fa-folder'; return 'fa-solid fa-folder-open'; }
@@ -997,7 +997,7 @@ function handleLongPressMove(e) { if (!longPressState.active) return; const poin
 function handleLongPressEnd(e) { cancelLongPress(); }
 function cancelLongPress() { if (longPressState.timer) { clearTimeout(longPressState.timer); longPressState.timer = null; } if (longPressState.target) longPressState.target.classList.remove('longpress-active'); longPressState.active = false; longPressState.target = null; }
 function triggerLongPress(target, x, y) { longPressState.triggered = true; longPressState.active = false; target.classList.add('longpress-active'); if (navigator.vibrate) navigator.vibrate(30); const lpType = target.dataset.lpType; const dataType = target.dataset.lpDatatype || (currentTab === 'catatan' ? 'notes' : 'vault'); setTimeout(() => { target.classList.remove('longpress-active'); let menuItems = []; if (lpType === 'folder') { const folderPath = target.dataset.lpPath; const folderName = target.dataset.lpName; menuItems = buildFolderContextMenu(folderPath, folderName, dataType); } else if (lpType === 'item') { const itemId = target.dataset.lpId; menuItems = buildItemContextMenu(itemId, dataType); } if (menuItems.length > 0) showContextMenu(x, y, menuItems); }, 100); }
-function moveItemAction(id, type) { openFolderPicker(type, (targetPath) => { const dataArray = type === 'notes' ? notes : accounts; const idx = dataArray.findIndex(a => String(a.id) === String(id)); if (idx === -1) return; const oldPath = dataArray[idx].kategori; if (oldPath === targetPath) { showToast('ℹ️ Sudah di folder yang sama', 'fa-info-circle'); return; } dataArray[idx].kategori = targetPath; showToast(` Dipindahkan ke "${targetPath || 'Root'}"`, 'fa-check-circle'); renderCurrentView(); syncCategoryChange(id, targetPath, type); }); }
+function moveItemAction(id, type) { openFolderPicker(type, (targetPath) => { const dataArray = type === 'notes' ? notes : accounts; const idx = dataArray.findIndex(a => String(a.id) === String(id)); if (idx === -1) return; const oldPath = dataArray[idx].kategori; if (oldPath === targetPath) { showToast('ℹ️ Sudah di folder yang sama', 'fa-info-circle'); return; } dataArray[idx].kategori = targetPath; showToast(`📦 Dipindahkan ke "${targetPath || 'Root'}"`, 'fa-check-circle'); renderCurrentView(); syncCategoryChange(id, targetPath, type); }); }
 function openFolderPicker(dataType, callback, excludePath) { pickerStack = []; pickerCallback = callback; pickerExcludePath = excludePath || null; pickerDataType = dataType || 'vault'; const overlay = safeGet('folderPickerOverlay'); if (!overlay) return; overlay.classList.add('active'); document.body.style.overflow = 'hidden'; const titleText = safeGet('picker-title-text'); const subtitleText = safeGet('picker-subtitle-text'); if (titleText) titleText.textContent = 'Pilih Folder Tujuan'; if (subtitleText) subtitleText.textContent = 'Navigasi folder untuk pindahkan item'; renderPickerView(); }
 function closeFolderPicker() { const overlay = safeGet('folderPickerOverlay'); if (overlay) overlay.classList.remove('active'); document.body.style.overflow = ''; pickerStack = []; pickerCallback = null; pickerExcludePath = null; const input = safeGet('picker-new-folder-input'); if (input) input.value = ''; }
 function renderPickerView() { renderPickerBreadcrumbs(); renderPickerBody(); updatePickerCurrentPath(); }
@@ -1160,10 +1160,10 @@ else { inp.type = 'password'; eye.className = 'fa-solid fa-eye'; }
 }
 async function doExport() {
 if (exportSelectedCategories.size === 0) {
-showToast('⚠️ Pilih minimal 1 kategori!', 'fa-circle-exclamation');
+showToast('️ Pilih minimal 1 kategori!', 'fa-circle-exclamation');
 return;
 }
-showToast('🔄 Memproses backup...', 'fa-spinner');
+showToast(' Memproses backup...', 'fa-spinner');
 const password = safeGet('export-password').value.trim();
 const exportData = {
 version: '8.3',
@@ -1216,12 +1216,14 @@ const fileInput = safeGet('import-file-input');
 const passwordSection = safeGet('import-password-section');
 const categorySelection = safeGet('import-category-selection');
 const preview = safeGet('import-preview');
+
 if (step1) step1.style.display = 'block';
 if (step2) step2.style.display = 'none';
 if (fileInput) fileInput.value = '';
 if (passwordSection) passwordSection.style.display = 'none';
 if (categorySelection) categorySelection.style.display = 'none';
 if (preview) { preview.style.display = 'none'; preview.innerHTML = ''; }
+
 importPendingData = null;
 importSelectedCategories.clear();
 }
@@ -1334,7 +1336,7 @@ if (!importPendingData) return;
 if (importPendingData.isEncrypted && !importPendingData.data) {
 const password = safeGet('import-password').value;
 if (!password) {
-showToast('️ Masukkan password!', 'fa-circle-exclamation');
+showToast('⚠️ Masukkan password!', 'fa-circle-exclamation');
 return;
 }
 try {
@@ -1367,12 +1369,22 @@ if (!importPendingData || !importPendingData.data) return;
 const data = importPendingData.data;
 const filteredVault = (data.vault || []).filter(a => importSelectedCategories.has(a.kategori));
 const filteredNotes = (data.notes || []).filter(n => importSelectedCategories.has(n.kategori));
+
 if (!confirm(`Import ${importSelectedCategories.size} kategori terpilih?\n${filteredVault.length} akun & ${filteredNotes.length} catatan akan ditambahkan ke database Anda.`)) {
 return;
 }
-let addedAkun = 0, addedCatatan = 0;
+
+let addedAkun = 0, skippedAkun = 0;
+let addedCatatan = 0, skippedCatatan = 0;
+
+// 1. PROSES VAULT (AKUN) - ANTI DOBEL
 filteredVault.forEach(a => {
-if (!accounts.find(x => x.id === a.id)) {
+const isDuplicate = accounts.some(x =>
+x.id === a.id ||
+(x.username && a.username && x.username.toLowerCase() === a.username.toLowerCase() && x.nama_aplikasi === a.nama_aplikasi)
+);
+
+if (!isDuplicate) {
 accounts.push(a);
 addedAkun++;
 if (isOnline && apiUrl) {
@@ -1383,10 +1395,19 @@ p.append("username", a.username); p.append("email", a.email);
 p.append("password", a.password); p.append("ket", a.ket||''); p.append("ket_dua", a.ket_dua||'');
 fetch(apiUrl, { method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: p }).catch(() => {});
 }
+} else {
+skippedAkun++;
 }
 });
+
+// 2. PROSES NOTES (CATATAN) - ANTI DOBEL
 filteredNotes.forEach(n => {
-if (!notes.find(x => x.id === n.id)) {
+const isDuplicate = notes.some(x =>
+x.id === n.id ||
+(x.judul && n.judul && x.judul.toLowerCase() === n.judul.toLowerCase())
+);
+
+if (!isDuplicate) {
 notes.push(n);
 addedCatatan++;
 if (isOnline && apiUrl) {
@@ -1396,12 +1417,20 @@ p.append("kategori", n.kategori); p.append("judul", n.judul);
 p.append("isi", n.isi);
 fetch(apiUrl, { method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: p }).catch(() => {});
 }
+} else {
+skippedCatatan++;
 }
 });
+
 renderCurrentView();
 renderStats();
 closeImportModal();
-showToast(`✅ Import berhasil! +${addedAkun} akun, +${addedCatatan} catatan`, 'fa-check-circle');
+
+let msg = `✅ Import selesai!<br>+${addedAkun} Akun, +${addedCatatan} Catatan ditambahkan.`;
+if (skippedAkun > 0 || skippedCatatan > 0) {
+msg += `<br>⏭️ ${skippedAkun} Akun & ${skippedCatatan} Catatan dilewati (sudah ada).`;
+}
+showToast(msg, 'fa-check-circle');
 importPendingData = null;
 }
 function closeImportModal() {
@@ -1413,12 +1442,14 @@ const fileInput = safeGet('import-file-input');
 const passwordSection = safeGet('import-password-section');
 const categorySelection = safeGet('import-category-selection');
 const preview = safeGet('import-preview');
+
 if (step1) step1.style.display = 'block';
 if (step2) step2.style.display = 'none';
 if (fileInput) fileInput.value = '';
 if (passwordSection) passwordSection.style.display = 'none';
 if (categorySelection) categorySelection.style.display = 'none';
 if (preview) { preview.style.display = 'none'; preview.innerHTML = ''; }
+
 importPendingData = null;
 importSelectedCategories.clear();
 }
