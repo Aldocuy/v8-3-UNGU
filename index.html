@@ -200,7 +200,7 @@ h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; background: var(
 .quick-actions-section { margin-bottom: 24px; }
 .section-title { font-size: 14px; font-weight: 700; color: var(--slate-500); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
 .section-title i { color: var(--accent-color); }
-.quick-actions-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+.quick-actions-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 .quick-action-btn { background: var(--bg-surface); border: 1px solid var(--card-border-custom); border-radius: 14px; padding: 14px 8px; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; color: var(--text-main); }
 [data-theme="light"] .quick-action-btn { box-shadow: var(--card-shadow); }
 .quick-action-btn:active { transform: scale(0.95); background: var(--app-row-hover); }
@@ -687,6 +687,9 @@ input:checked + .slider:before { transform: translateX(20px); }
 <button class="quick-action-btn" onclick="fetchData()">
 <div class="qa-icon bg-blue"><i class="fa-solid fa-rotate"></i></div><span>Sync</span>
 </button>
+<button class="quick-action-btn" onclick="bukaBackupRestore()">
+<div class="qa-icon bg-purple"><i class="fa-solid fa-database"></i></div><span>Backup</span>
+</button>
 <button class="quick-action-btn" onclick="kunciBrankasMendadak()">
 <div class="qa-icon bg-red"><i class="fa-solid fa-lock"></i></div><span>Kunci</span>
 </button>
@@ -694,7 +697,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 <div class="qa-icon bg-yellow"><i class="fa-solid fa-clock-rotate-left"></i></div><span>Antrian</span>
 </button>
 <button class="quick-action-btn" onclick="bukaDaftarFolderInduk()">
-<div class="qa-icon bg-purple"><i class="fa-solid fa-folder-tree"></i></div><span>Folder</span>
+<div class="qa-icon bg-cyan" style="background: linear-gradient(135deg, #06b6d4, #0891b2);"><i class="fa-solid fa-folder-tree"></i></div><span>Folder</span>
 </button>
 </div>
 </div>
@@ -821,7 +824,15 @@ input:checked + .slider:before { transform: translateX(20px); }
 <p style="font-size:12px; color:var(--slate-300); margin-bottom:6px;">🔒 File terenkripsi. Masukkan password:</p>
 <input type="password" id="import-password" class="form-input" placeholder="Password backup" style="margin-bottom:0;">
 </div>
-<div id="import-preview" style="max-height:200px; overflow-y:auto; margin-bottom:12px;"></div>
+<div id="import-category-selection" style="display:none; margin-bottom:12px;">
+<p style="font-size:13px; color:var(--slate-300); margin-bottom:8px; font-weight:600;">Pilih kategori yang ingin di-import:</p>
+<div class="backup-select-all" onclick="toggleSelectAllImport()">
+<span class="backup-select-all-text"><i class="fa-solid fa-check-double"></i> Pilih Semua</span>
+<span class="backup-select-all-count" id="import-selected-count">0 dipilih</span>
+</div>
+<div id="import-category-list" style="max-height:200px; overflow-y:auto; padding-right:4px;"></div>
+</div>
+<div id="import-preview" style="display:none; max-height:200px; overflow-y:auto; margin-bottom:12px;"></div>
 <div style="display:flex; gap:12px;">
 <button type="button" class="btn-pro" style="flex-grow:1; justify-content:center;" onclick="doImport()"><i class="fa-solid fa-upload"></i> Import</button>
 <button type="button" style="color:var(--slate-500); background:none; border:none;" onclick="closeImportModal()">Batal</button>
@@ -935,6 +946,7 @@ let pickerExcludePath = null;
 let pickerDataType = 'vault';
 let showFolderRootView = false;
 let exportSelectedCategories = new Set();
+let importSelectedCategories = new Set();
 let importPendingData = null;
 const LONG_PRESS_DELAY = 400;
 const LONG_PRESS_MOVE_THRESHOLD = 10;
@@ -985,7 +997,7 @@ function handleLongPressMove(e) { if (!longPressState.active) return; const poin
 function handleLongPressEnd(e) { cancelLongPress(); }
 function cancelLongPress() { if (longPressState.timer) { clearTimeout(longPressState.timer); longPressState.timer = null; } if (longPressState.target) longPressState.target.classList.remove('longpress-active'); longPressState.active = false; longPressState.target = null; }
 function triggerLongPress(target, x, y) { longPressState.triggered = true; longPressState.active = false; target.classList.add('longpress-active'); if (navigator.vibrate) navigator.vibrate(30); const lpType = target.dataset.lpType; const dataType = target.dataset.lpDatatype || (currentTab === 'catatan' ? 'notes' : 'vault'); setTimeout(() => { target.classList.remove('longpress-active'); let menuItems = []; if (lpType === 'folder') { const folderPath = target.dataset.lpPath; const folderName = target.dataset.lpName; menuItems = buildFolderContextMenu(folderPath, folderName, dataType); } else if (lpType === 'item') { const itemId = target.dataset.lpId; menuItems = buildItemContextMenu(itemId, dataType); } if (menuItems.length > 0) showContextMenu(x, y, menuItems); }, 100); }
-function moveItemAction(id, type) { openFolderPicker(type, (targetPath) => { const dataArray = type === 'notes' ? notes : accounts; const idx = dataArray.findIndex(a => String(a.id) === String(id)); if (idx === -1) return; const oldPath = dataArray[idx].kategori; if (oldPath === targetPath) { showToast('ℹ️ Sudah di folder yang sama', 'fa-info-circle'); return; } dataArray[idx].kategori = targetPath; showToast(`📦 Dipindahkan ke "${targetPath || 'Root'}"`, 'fa-check-circle'); renderCurrentView(); syncCategoryChange(id, targetPath, type); }); }
+function moveItemAction(id, type) { openFolderPicker(type, (targetPath) => { const dataArray = type === 'notes' ? notes : accounts; const idx = dataArray.findIndex(a => String(a.id) === String(id)); if (idx === -1) return; const oldPath = dataArray[idx].kategori; if (oldPath === targetPath) { showToast('ℹ️ Sudah di folder yang sama', 'fa-info-circle'); return; } dataArray[idx].kategori = targetPath; showToast(` Dipindahkan ke "${targetPath || 'Root'}"`, 'fa-check-circle'); renderCurrentView(); syncCategoryChange(id, targetPath, type); }); }
 function openFolderPicker(dataType, callback, excludePath) { pickerStack = []; pickerCallback = callback; pickerExcludePath = excludePath || null; pickerDataType = dataType || 'vault'; const overlay = safeGet('folderPickerOverlay'); if (!overlay) return; overlay.classList.add('active'); document.body.style.overflow = 'hidden'; const titleText = safeGet('picker-title-text'); const subtitleText = safeGet('picker-subtitle-text'); if (titleText) titleText.textContent = 'Pilih Folder Tujuan'; if (subtitleText) subtitleText.textContent = 'Navigasi folder untuk pindahkan item'; renderPickerView(); }
 function closeFolderPicker() { const overlay = safeGet('folderPickerOverlay'); if (overlay) overlay.classList.remove('active'); document.body.style.overflow = ''; pickerStack = []; pickerCallback = null; pickerExcludePath = null; const input = safeGet('picker-new-folder-input'); if (input) input.value = ''; }
 function renderPickerView() { renderPickerBreadcrumbs(); renderPickerBody(); updatePickerCurrentPath(); }
@@ -1016,16 +1028,58 @@ function stopAutoRetry() { if (syncIntervalId) { clearInterval(syncIntervalId); 
 window.addEventListener('online', () => { isOnline = true; showToast('🌐 Online!', 'fa-wifi'); processSyncQueue(); updateSyncStatus(); });
 window.addEventListener('offline', () => { isOnline = false; showToast('📡 Offline', 'fa-wifi-slash'); updateSyncStatus(); });
 function getPinHash() { return localStorage.getItem('vault_pin_hash') || DEFAULT_PIN_HASH; }
-async function hashPin(pin) { const buffer = new TextEncoder().encode(pin); const hashBuffer = await crypto.subtle.digest('SHA-256', buffer); return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join(''); }
+async function hashPin(pin) {
+if (!window.crypto || !window.crypto.subtle) {
+throw new Error("Crypto API tidak tersedia di browser ini.");
+}
+const buffer = new TextEncoder().encode(pin);
+const hashBuffer = await window.crypto.subtle.digest('SHA-256', buffer);
+return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
 function handlePinInput(input) { const val = input.value; const dots = document.querySelectorAll('#pinDots .dot'); dots.forEach((dot, i) => { if (i < val.length) dot.classList.add('filled'); else dot.classList.remove('filled'); }); if (val.length === 4) setTimeout(() => cekPinModern(val), 150); }
-async function cekPinModern(pin) { const feedback = safeGet('lockFeedback'), pinInput = safeGet('master-pin'), pinError = safeGet('pin-error'), lockCard = safeGet('lockCard'); if (!feedback || !pinInput || !pinError || !lockCard) return; feedback.classList.add('show'); pinInput.disabled = true; await new Promise(r => setTimeout(r, 800)); const inputHash = await hashPin(pin), storedHash = getPinHash(); if (inputHash === storedHash) { lockCard.classList.add('success'); showToast('✅ Login berhasil!', 'fa-check-circle'); sessionStorage.setItem('vault_unlocked', 'true'); setTimeout(() => { const ls = safeGet('lockScreen'); if (ls) ls.style.display = 'none'; }, 500); } else { feedback.classList.remove('show'); pinInput.disabled = false; pinInput.value = ''; pinError.classList.add('show'); document.querySelectorAll('#pinDots .dot').forEach(dot => dot.classList.add('error')); setTimeout(() => { pinError.classList.remove('show'); document.querySelectorAll('#pinDots .dot').forEach(dot => dot.classList.remove('error', 'filled')); }, 2000); if (navigator.vibrate) navigator.vibrate([100, 50, 100]); } }
+async function cekPinModern(pin) {
+const feedback = safeGet('lockFeedback'), pinInput = safeGet('master-pin'), pinError = safeGet('pin-error'), lockCard = safeGet('lockCard');
+if (!feedback || !pinInput || !pinError || !lockCard) return;
+feedback.classList.add('show');
+pinInput.disabled = true;
+await new Promise(r => setTimeout(r, 800));
+try {
+const inputHash = await hashPin(pin);
+const storedHash = getPinHash();
+if (inputHash === storedHash) {
+lockCard.classList.add('success');
+showToast('✅ Login berhasil!', 'fa-check-circle');
+sessionStorage.setItem('vault_unlocked', 'true');
+setTimeout(() => {
+const ls = safeGet('lockScreen');
+if (ls) ls.style.display = 'none';
+}, 500);
+} else {
+feedback.classList.remove('show');
+pinInput.disabled = false;
+pinInput.value = '';
+pinError.classList.add('show');
+document.querySelectorAll('#pinDots .dot').forEach(dot => dot.classList.add('error'));
+setTimeout(() => {
+pinError.classList.remove('show');
+document.querySelectorAll('#pinDots .dot').forEach(dot => dot.classList.remove('error', 'filled'));
+}, 2000);
+if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+}
+} catch (e) {
+console.error("Login Hash Error:", e);
+feedback.classList.remove('show');
+pinInput.disabled = false;
+showToast("❌ Gagal memverifikasi. Gunakan HTTPS/localhost.", "fa-circle-xmark");
+}
+}
 function kunciBrankasMendadak() { sessionStorage.removeItem('vault_unlocked'); navigateToRoot(); const ls = safeGet('lockScreen'); const mp = safeGet('master-pin'); if (ls) ls.style.display = 'flex'; if (mp) mp.value = ''; document.querySelectorAll('#pinDots .dot').forEach(dot => dot.classList.remove('filled')); showToast('🔒 Brankas dikunci', 'fa-lock'); }
 function simulateBiometric() { const feedback = safeGet('lockFeedback'), lockCard = safeGet('lockCard'); if (!feedback || !lockCard) return; feedback.classList.add('show'); const feedbackText = feedback.querySelector('.feedback-text'); if (feedbackText) feedbackText.textContent = 'Memindai biometrik...'; setTimeout(() => { lockCard.classList.add('success'); showToast('✅ Biometrik berhasil!', 'fa-fingerprint'); sessionStorage.setItem('vault_unlocked', 'true'); setTimeout(() => { const ls = safeGet('lockScreen'); if (ls) ls.style.display = 'none'; if (feedbackText) feedbackText.textContent = 'Memverifikasi...'; }, 500); }, 1500); }
 function showRecoveryHint() { const hint = localStorage.getItem('vault_pin_hint') || 'PIN default: 1234'; alert('💡 Petunjuk: ' + hint); }
 function toggleThemeMode() { const current = document.documentElement.getAttribute('data-theme') || 'dark'; const target = current === 'dark' ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', target); localStorage.setItem('vault_theme', target); updateThemeToggleIcon(target); showToast('Mode ' + (target === 'dark' ? 'Gelap' : 'Terang'), "fa-circle-half-stroke"); }
 function updateThemeToggleIcon(theme) { const btn = safeGet('themeToggleBtn'); if (!btn) return; const icon = btn.querySelector('i'); if (icon) icon.className = theme === 'light' ? 'fa-solid fa-sun' : 'fa-solid fa-moon'; }
 function showToast(msg, icon) { icon = icon || 'fa-circle-check'; const c = safeGet('toast-container'); if (!c) return; const t = document.createElement('div'); t.className = 'premium-toast'; t.innerHTML = '<i class="fa-solid ' + icon + '" style="color: var(--accent-color)"></i> <span>' + msg + '</span>'; c.appendChild(t); setTimeout(() => t.remove(), 2000); }
-function saveAPI() { const input = safeGet('api-url-input'); const url = input ? input.value.trim() : ''; if (!url) { showToast('⚠️ URL kosong!', 'fa-circle-exclamation'); return; } if (!url.includes('/exec')) { showToast('⚠️ URL harus /exec', 'fa-circle-exclamation'); return; } apiUrl = url; localStorage.setItem('vault_api_url', url); showToast('✅ Database terhubung!', 'fa-check-circle'); notesLoaded = false; fetchData(); }
+function saveAPI() { const input = safeGet('api-url-input'); const url = input ? input.value.trim() : ''; if (!url) { showToast('️ URL kosong!', 'fa-circle-exclamation'); return; } if (!url.includes('/exec')) { showToast('⚠️ URL harus /exec', 'fa-circle-exclamation'); return; } apiUrl = url; localStorage.setItem('vault_api_url', url); showToast('✅ Database terhubung!', 'fa-check-circle'); notesLoaded = false; fetchData(); }
 function toggleSidebar(show) { const sidebar = safeGet('sidebarMenu'), overlay = safeGet('sidebarOverlay'); if (!sidebar || !overlay) return; if (show) { sidebar.classList.add('active'); overlay.classList.add('active'); } else { sidebar.classList.remove('active'); overlay.classList.remove('active'); } }
 function bukaDaftarFolderInduk() { showFolderRootView = true; currentTab = 'beranda'; navigationStack = []; document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); const tabBeranda = safeGet('tab-beranda'); if (tabBeranda) tabBeranda.classList.add('active'); const h2 = safeGet('nama-menu-halaman'); if (h2) safeSetHTML(h2, '<i class="fa-solid fa-folder-tree"></i><span>Folder Utama</span>'); renderCurrentView(); const appContainer = document.querySelector('.app-container'); if (appContainer) appContainer.scrollTo({top: 0, behavior: 'smooth'}); showToast('📁 Folder Utama', 'fa-folder-tree'); }
 function toggleFullscreen() { const sidebarIcon = document.getElementById('sidebarFullscreenIcon'); if (!document.fullscreenElement) { if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen(); else if (document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullscreen(); else if (document.documentElement.msRequestFullscreen) document.documentElement.msRequestFullscreen(); if (sidebarIcon) sidebarIcon.className = 'fa-solid fa-compress'; showToast('📱 Mode Layar Penuh', 'fa-expand'); } else { if (document.exitFullscreen) document.exitFullscreen(); else if (document.webkitExitFullscreen) document.webkitExitFullscreen(); else if (document.msExitFullscreen) document.msExitFullscreen(); if (sidebarIcon) sidebarIcon.className = 'fa-solid fa-expand'; showToast('🔙 Keluar Layar Penuh', 'fa-compress'); } }
@@ -1159,10 +1213,17 @@ modal.style.display = 'grid';
 const step1 = safeGet('import-step-1');
 const step2 = safeGet('import-step-2');
 const fileInput = safeGet('import-file-input');
+const passwordSection = safeGet('import-password-section');
+const categorySelection = safeGet('import-category-selection');
+const preview = safeGet('import-preview');
 if (step1) step1.style.display = 'block';
 if (step2) step2.style.display = 'none';
 if (fileInput) fileInput.value = '';
+if (passwordSection) passwordSection.style.display = 'none';
+if (categorySelection) categorySelection.style.display = 'none';
+if (preview) { preview.style.display = 'none'; preview.innerHTML = ''; }
 importPendingData = null;
+importSelectedCategories.clear();
 }
 }
 function handleImportFile(event) {
@@ -1181,17 +1242,19 @@ if (content.startsWith('RV_ENC:')) {
 isEncrypted = true;
 content = content.substring(7);
 }
-if (isEncrypted) {
-safeGet('import-password-section').style.display = 'block';
-importPendingData = { content, isEncrypted: true, fileName: file.name, fileSize: file.size };
+importPendingData = { content, isEncrypted, fileName: file.name, fileSize: file.size };
 safeSetText(safeGet('import-file-name'), file.name);
 safeSetText(safeGet('import-file-size'), (file.size / 1024).toFixed(2) + ' KB');
 safeGet('import-step-1').style.display = 'none';
 safeGet('import-step-2').style.display = 'block';
-safeSetHTML(safeGet('import-preview'), '<p style="text-align:center;color:var(--slate-500);padding:20px;">🔒 Masukkan password untuk preview</p>');
-return;
+if (isEncrypted) {
+safeGet('import-password-section').style.display = 'block';
+safeGet('import-category-selection').style.display = 'none';
+safeGet('import-preview').style.display = 'none';
 } else {
+safeGet('import-password-section').style.display = 'none';
 const data = JSON.parse(e.target.result);
+importPendingData.data = data;
 processImportData(data, file.name, file.size);
 }
 } catch(err) {
@@ -1205,35 +1268,73 @@ if (!data.vault && !data.notes) {
 showToast('⚠️ Format file tidak dikenali!', 'fa-circle-xmark');
 return;
 }
-importPendingData = { data, fileName, fileSize };
+importPendingData.data = data;
 safeSetText(safeGet('import-file-name'), fileName);
 safeSetText(safeGet('import-file-size'), (fileSize / 1024).toFixed(2) + ' KB');
-safeGet('import-step-1').style.display = 'none';
-safeGet('import-step-2').style.display = 'block';
-safeGet('import-password-section').style.display = 'none';
-let previewHtml = '';
-const cats = data.categories || [...new Set([...(data.vault||[]).map(a=>a.kategori), ...(data.notes||[]).map(n=>n.kategori)])];
-previewHtml += `<div style="margin-bottom:10px;font-size:12px;color:var(--slate-300);font-weight:600;">📦 Preview Data (${cats.length} kategori):</div>`;
-cats.slice(0, 8).forEach(cat => {
-const v = (data.vault||[]).filter(a => a.kategori === cat).length;
-const n = (data.notes||[]).filter(a => a.kategori === cat).length;
-previewHtml += `<div class="import-preview-item">
-<div class="import-preview-icon"><i class="fa-solid fa-folder"></i></div>
-<div class="import-preview-info">
-<div class="import-preview-title">${cat}</div>
-<div class="import-preview-meta">${v} akun • ${n} catatan</div>
+const cats = data.categories || [...new Set([...(data.vault||[]).map(a=>a.kategori), ...(data.notes||[]).map(n=>n.kategori)])].filter(Boolean);
+importSelectedCategories.clear();
+cats.forEach(c => importSelectedCategories.add(c));
+renderImportCategoryList(cats, data);
+safeGet('import-category-selection').style.display = 'block';
+safeGet('import-preview').style.display = 'none';
+}
+function renderImportCategoryList(cats, data) {
+const list = safeGet('import-category-list');
+if (!list) return;
+if (cats.length === 0) {
+safeSetHTML(list, '<p style="text-align:center;color:var(--slate-500);padding:10px;font-size:13px;">Tidak ada kategori</p>');
+return;
+}
+let html = '';
+cats.forEach(cat => {
+const akunCount = (data.vault||[]).filter(a => a.kategori === cat).length;
+const catatanCount = (data.notes||[]).filter(n => n.kategori === cat).length;
+const isSelected = importSelectedCategories.has(cat);
+html += `<div class="backup-category-item ${isSelected ? 'selected' : ''}" data-category="${cat.replace(/"/g, '&quot;')}" onclick="toggleImportCategory('${cat.replace(/'/g, "\\'")}')">
+<div class="backup-checkbox"><i class="fa-solid fa-check"></i></div>
+<div class="backup-category-info">
+<div class="backup-category-name">${cat}</div>
+<div class="backup-category-count">${akunCount} akun • ${catatanCount} catatan</div>
 </div>
 </div>`;
 });
-if (cats.length > 8) previewHtml += `<div style="text-align:center;font-size:11px;color:var(--slate-500);padding:8px;">+${cats.length - 8} kategori lainnya</div>`;
-safeSetHTML(safeGet('import-preview'), previewHtml);
+safeSetHTML(list, html);
+safeSetText(safeGet('import-selected-count'), importSelectedCategories.size + ' dipilih');
+}
+function toggleImportCategory(cat) {
+if (importSelectedCategories.has(cat)) {
+importSelectedCategories.delete(cat);
+} else {
+importSelectedCategories.add(cat);
+}
+const el = document.querySelector(`#import-category-list .backup-category-item[data-category="${cat.replace(/"/g, '&quot;')}"]`);
+if (el) {
+if (importSelectedCategories.has(cat)) el.classList.add('selected');
+else el.classList.remove('selected');
+}
+safeSetText(safeGet('import-selected-count'), importSelectedCategories.size + ' dipilih');
+}
+function toggleSelectAllImport() {
+if (!importPendingData || !importPendingData.data) return;
+const data = importPendingData.data;
+const cats = data.categories || [...new Set([...(data.vault||[]).map(a=>a.kategori), ...(data.notes||[]).map(n=>n.kategori)])].filter(Boolean);
+if (importSelectedCategories.size === cats.length && cats.length > 0) {
+importSelectedCategories.clear();
+} else {
+cats.forEach(c => importSelectedCategories.add(c));
+}
+document.querySelectorAll('#import-category-list .backup-category-item').forEach(el => {
+if (importSelectedCategories.has(el.dataset.category)) el.classList.add('selected');
+else el.classList.remove('selected');
+});
+safeSetText(safeGet('import-selected-count'), importSelectedCategories.size + ' dipilih');
 }
 function doImport() {
 if (!importPendingData) return;
-if (importPendingData.isEncrypted) {
+if (importPendingData.isEncrypted && !importPendingData.data) {
 const password = safeGet('import-password').value;
 if (!password) {
-showToast('⚠️ Masukkan password!', 'fa-circle-exclamation');
+showToast('️ Masukkan password!', 'fa-circle-exclamation');
 return;
 }
 try {
@@ -1247,26 +1348,30 @@ decrypted[i] = bytes[i] ^ key[i % key.length];
 }
 const text = new TextDecoder().decode(decrypted);
 const data = JSON.parse(text);
+importPendingData.data = data;
 processImportData(data, importPendingData.fileName, importPendingData.fileSize);
-setTimeout(() => executeImport(), 300);
 return;
 } catch(e) {
 showToast('❌ Password salah atau file corrupt!', 'fa-circle-xmark');
 return;
 }
 }
+if (importSelectedCategories.size === 0) {
+showToast('⚠️ Pilih minimal 1 kategori!', 'fa-circle-exclamation');
+return;
+}
 executeImport();
 }
 function executeImport() {
 if (!importPendingData || !importPendingData.data) return;
 const data = importPendingData.data;
-if (!confirm(`Import ${data.categories?.length || '?'} kategori?
-${(data.vault||[]).length} akun & ${(data.notes||[]).length} catatan akan ditambahkan ke database Anda.`)) {
-closeImportModal();
+const filteredVault = (data.vault || []).filter(a => importSelectedCategories.has(a.kategori));
+const filteredNotes = (data.notes || []).filter(n => importSelectedCategories.has(n.kategori));
+if (!confirm(`Import ${importSelectedCategories.size} kategori terpilih?\n${filteredVault.length} akun & ${filteredNotes.length} catatan akan ditambahkan ke database Anda.`)) {
 return;
 }
 let addedAkun = 0, addedCatatan = 0;
-(data.vault || []).forEach(a => {
+filteredVault.forEach(a => {
 if (!accounts.find(x => x.id === a.id)) {
 accounts.push(a);
 addedAkun++;
@@ -1280,7 +1385,7 @@ fetch(apiUrl, { method: 'POST', headers: {'Content-Type': 'application/x-www-for
 }
 }
 });
-(data.notes || []).forEach(n => {
+filteredNotes.forEach(n => {
 if (!notes.find(x => x.id === n.id)) {
 notes.push(n);
 addedCatatan++;
@@ -1302,10 +1407,20 @@ importPendingData = null;
 function closeImportModal() {
 const modal = safeGet('importModal');
 if (modal) modal.style.display = 'none';
-safeGet('import-step-1').style.display = 'block';
-safeGet('import-step-2').style.display = 'none';
-safeGet('import-file-input').value = '';
+const step1 = safeGet('import-step-1');
+const step2 = safeGet('import-step-2');
+const fileInput = safeGet('import-file-input');
+const passwordSection = safeGet('import-password-section');
+const categorySelection = safeGet('import-category-selection');
+const preview = safeGet('import-preview');
+if (step1) step1.style.display = 'block';
+if (step2) step2.style.display = 'none';
+if (fileInput) fileInput.value = '';
+if (passwordSection) passwordSection.style.display = 'none';
+if (categorySelection) categorySelection.style.display = 'none';
+if (preview) { preview.style.display = 'none'; preview.innerHTML = ''; }
 importPendingData = null;
+importSelectedCategories.clear();
 }
 window.onload = function() {
 const apiUrlInput = safeGet('api-url-input');
@@ -1353,11 +1468,57 @@ function bukaInputLangsung() { if (currentTab === 'catatan') { openModal('notes'
 function openModal(t) { t = t || 'vault'; if (t === 'notes') { const nm = safeGet('noteModal'); const nf = safeGet('note-form'); const nid = safeGet('note-id'); const nki = safeGet('note-kategori-input'); const nmt = safeGet('note-modal-title'); if (nm) nm.style.display = 'grid'; if (nf) nf.reset(); if (nid) nid.value = ""; if (nki) nki.value = getCurrentPath() || ""; if (nmt) nmt.innerText = "Catatan Baru"; } else { const em = safeGet('entryModal'); const af = safeGet('account-form'); const eid = safeGet('entry-id'); const ki = safeGet('kategori-input'); const mt = safeGet('modal-title'); if (em) em.style.display = 'grid'; if (af) af.reset(); if (eid) eid.value = ""; if (ki) ki.value = getCurrentPath() || ""; if (mt) mt.innerText = "Kredensial Baru"; } }
 function closeModal() { const em = safeGet('entryModal'); const af = safeGet('account-form'); const eid = safeGet('entry-id'); const ki = safeGet('kategori-input'); if (em) em.style.display = 'none'; if (af) af.reset(); if (eid) eid.value = ""; if (ki) ki.value = ""; }
 function closeNoteModal() { const nm = safeGet('noteModal'); const nf = safeGet('note-form'); const nid = safeGet('note-id'); const nki = safeGet('note-kategori-input'); if (nm) nm.style.display = 'none'; if (nf) nf.reset(); if (nid) nid.value = ""; if (nki) nki.value = ""; }
-function bukaSettingsPin() { toggleSidebar(false); const psm = safeGet('pinSettingsModal'); const pf = safeGet('pin-form'); if (psm) psm.style.display = 'grid'; if (pf) pf.reset(); }
+function bukaSettingsPin() {
+toggleSidebar(false);
+const psm = safeGet('pinSettingsModal');
+const pf = safeGet('pin-form');
+const er = safeGet('pin-settings-error');
+if (psm) psm.style.display = 'grid';
+if (pf) pf.reset();
+if (er) er.style.display = 'none';
+}
 function closePinSettings() { const psm = safeGet('pinSettingsModal'); const pf = safeGet('pin-form'); if (psm) psm.style.display = 'none'; if (pf) pf.reset(); }
 const pinToggle = safeGet('pin-toggle');
 if (pinToggle) { pinToggle.addEventListener('change', function(e) { const on = e.target.checked; localStorage.setItem('vault_pin_enabled', on ? 'true' : 'false'); showToast(on ? "🔐 PIN Aktif" : "🔓 PIN Nonaktif", "fa-lock"); if (!on) { const ls = safeGet('lockScreen'); if (ls) ls.style.display = 'none'; sessionStorage.setItem('vault_unlocked', 'true'); } else { sessionStorage.removeItem('vault_unlocked'); } }); }
-async function submitPinChange() { const c = safeGet('pin-current'); const n = safeGet('pin-new'); const cf = safeGet('pin-confirm'); const er = safeGet('pin-settings-error'); if (!c || !n || !cf || !er) return; if (!/^\d{4}$/.test(c.value) || !/^\d{4}$/.test(n.value) || !/^\d{4}$/.test(cf.value)) { er.textContent = "PIN harus 4 digit!"; er.style.display = 'block'; return; } if (n.value !== cf.value) { er.textContent = "PIN baru tidak cocok!"; er.style.display = 'block'; return; } const currentHash = await hashPin(c.value); if (currentHash !== getPinHash()) { er.textContent = "PIN saat ini salah!"; er.style.display = 'block'; return; } localStorage.setItem('vault_pin_hash', await hashPin(n.value)); closePinSettings(); showToast("✅ PIN berhasil diubah!", "fa-key"); }
+async function submitPinChange() {
+const c = safeGet('pin-current');
+const n = safeGet('pin-new');
+const cf = safeGet('pin-confirm');
+const er = safeGet('pin-settings-error');
+if (!c || !n || !cf || !er) return;
+er.style.display = 'none';
+if (!/^\d{4}$/.test(c.value)) {
+er.textContent = "PIN saat ini harus 4 digit!";
+er.style.display = 'block';
+return;
+}
+if (!/^\d{4}$/.test(n.value)) {
+er.textContent = "PIN baru harus 4 digit!";
+er.style.display = 'block';
+return;
+}
+if (n.value !== cf.value) {
+er.textContent = "Konfirmasi PIN baru tidak cocok!";
+er.style.display = 'block';
+return;
+}
+try {
+const currentHash = await hashPin(c.value);
+if (currentHash !== getPinHash()) {
+er.textContent = "PIN saat ini salah!";
+er.style.display = 'block';
+return;
+}
+const newHash = await hashPin(n.value);
+localStorage.setItem('vault_pin_hash', newHash);
+closePinSettings();
+showToast("✅ PIN berhasil diubah!", "fa-key");
+} catch (e) {
+console.error("PIN Hash Error:", e);
+er.textContent = "Gagal memproses PIN. Pastikan menggunakan HTTPS atau localhost.";
+er.style.display = 'block';
+}
+}
 function bukaCustomDropdownLayer(ft) { ft = ft || 'vault'; const dl = safeGet('dropdownLayerModal'); if (dl) dl.style.display = 'flex'; buildDropdownOptions(ft); }
 function tutupCustomDropdownLayer() { const dl = safeGet('dropdownLayerModal'); if (dl) dl.style.display = 'none'; }
 function buildDropdownOptions(ft) { ft = ft || 'vault'; const sa = ft === 'notes' ? notes : accounts; const cats = [...new Set(sa.map(a => a.kategori).filter(k => k))]; if (!cats.includes("Kerja")) cats.push("Kerja"); if (!cats.includes("Keuangan")) cats.push("Keuangan"); if (!cats.includes("Umum")) cats.push("Umum"); const coc = safeGet('custom-options-container'); if (coc) safeSetHTML(coc, cats.map(c => `<div class="dropdown-option-row" onclick="pilihKat('${c.replace(/'/g, "\\'")}')"><span><i class="fa-regular fa-folder" style="color:var(--accent-color);margin-right:8px;"></i>${c}</span></div>`).join('')); }
@@ -1452,6 +1613,10 @@ window.toggleExportPassword = toggleExportPassword;
 window.doExport = doExport;
 window.bukaImportModal = bukaImportModal;
 window.handleImportFile = handleImportFile;
+window.processImportData = processImportData;
+window.renderImportCategoryList = renderImportCategoryList;
+window.toggleImportCategory = toggleImportCategory;
+window.toggleSelectAllImport = toggleSelectAllImport;
 window.doImport = doImport;
 window.closeImportModal = closeImportModal;
 })();
@@ -1459,7 +1624,6 @@ window.closeImportModal = closeImportModal;
 <!-- === FITUR TAP OUTSIDE TO CLOSE === -->
 <script>
 (function() {
-// Helper: tutup modal saat tap di overlay (bukan di dalam modal)
 function addOutsideClose(overlayId, closeFn) {
 const overlay = document.getElementById(overlayId);
 if (!overlay) return;
@@ -1472,32 +1636,14 @@ try { eval(closeFn); } catch(err) { console.warn('Close failed:', err); }
 }
 });
 }
-
-// Daftar semua modal & fungsi close-nya
-addOutsideClose('entryModal', function() {
-if (typeof closeModal === 'function') closeModal();
-});
-addOutsideClose('noteModal', function() {
-if (typeof closeNoteModal === 'function') closeNoteModal();
-});
-addOutsideClose('pinSettingsModal', function() {
-if (typeof closePinSettings === 'function') closePinSettings();
-});
-addOutsideClose('queueModal', function() {
-if (typeof closeQueueModal === 'function') closeQueueModal();
-});
-addOutsideClose('exportModal', function() {
-if (typeof closeExportModal === 'function') closeExportModal();
-});
-addOutsideClose('importModal', function() {
-if (typeof closeImportModal === 'function') closeImportModal();
-});
-addOutsideClose('dropdownLayerModal', function() {
-if (typeof tutupCustomDropdownLayer === 'function') tutupCustomDropdownLayer();
-});
-addOutsideClose('contextMenuOverlay', function() {
-if (typeof closeContextMenu === 'function') closeContextMenu();
-});
+addOutsideClose('entryModal', function() { if (typeof closeModal === 'function') closeModal(); });
+addOutsideClose('noteModal', function() { if (typeof closeNoteModal === 'function') closeNoteModal(); });
+addOutsideClose('pinSettingsModal', function() { if (typeof closePinSettings === 'function') closePinSettings(); });
+addOutsideClose('queueModal', function() { if (typeof closeQueueModal === 'function') closeQueueModal(); });
+addOutsideClose('exportModal', function() { if (typeof closeExportModal === 'function') closeExportModal(); });
+addOutsideClose('importModal', function() { if (typeof closeImportModal === 'function') closeImportModal(); });
+addOutsideClose('dropdownLayerModal', function() { if (typeof tutupCustomDropdownLayer === 'function') tutupCustomDropdownLayer(); });
+addOutsideClose('contextMenuOverlay', function() { if (typeof closeContextMenu === 'function') closeContextMenu(); });
 addOutsideClose('moreMenuOverlay', function() {
 const moreMenu = document.getElementById('moreMenu');
 if (moreMenu) moreMenu.style.display = 'none';
@@ -1508,8 +1654,6 @@ addOutsideClose('floating-menu', function() {
 const fm = document.getElementById('floating-menu');
 if (fm) fm.style.display = 'none';
 });
-
-// Tambahin juga: tekan tombol ESC untuk tutup modal
 document.addEventListener('keydown', function(e) {
 if (e.key === 'Escape') {
 const modals = [
