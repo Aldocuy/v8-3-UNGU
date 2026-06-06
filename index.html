@@ -534,7 +534,6 @@ input:checked + .slider:before { transform: translateX(20px); }
 .popup-btn-modern { padding: 11px 14px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .popup-btn-modern.edit { background: rgba(139, 92, 246, 0.15); color: var(--cyan-light); border: 1px solid rgba(139, 92, 246, 0.2); }
 .popup-btn-modern.delete { background: rgba(244, 63, 94, 0.1); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.15); }
-
 /* === BACKUP & RESTORE STYLES === */
 .backup-category-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s; }
 [data-theme="light"] .backup-category-item { background: #faf5ff; border-color: #e9d5ff; }
@@ -765,11 +764,10 @@ input:checked + .slider:before { transform: translateX(20px); }
 <div class="nav-item" id="tab-favorit" onclick="navigateToRoot(); gantiTabMenu('favorit', this)"><i class="fa-solid fa-star"></i><span>Favorit</span></div>
 </nav>
 </div>
-
-<!-- MODAL EXPORT -->
+<!-- MODAL BACKUP & RESTORE -->
 <div class="modal-overlay" id="exportModal">
 <div class="modal">
-<h3 style="margin-bottom:15px; color:var(--accent-color);"><i class="fa-solid fa-file-export"></i> Export Backup</h3>
+<h3 style="margin-bottom:15px; color:var(--accent-color);"><i class="fa-solid fa-database"></i> Backup & Restore</h3>
 <div class="backup-stats">
 <div class="backup-stat-card">
 <div class="backup-stat-value" id="export-total-akun">0</div>
@@ -780,7 +778,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 <div class="backup-stat-label">Catatan</div>
 </div>
 </div>
-<p style="font-size:13px; color:var(--slate-300); margin-bottom:12px; font-weight:600;">Pilih kategori yang ingin di-export:</p>
+<p style="font-size:13px; color:var(--slate-300); margin-bottom:12px; font-weight:600;">Pilih kategori yang ingin di-backup:</p>
 <div class="backup-select-all" onclick="toggleSelectAllExport()">
 <span class="backup-select-all-text"><i class="fa-solid fa-check-double"></i> Pilih Semua</span>
 <span class="backup-select-all-count" id="export-selected-count">0 dipilih</span>
@@ -792,12 +790,14 @@ input:checked + .slider:before { transform: translateX(20px); }
 </div>
 <div class="backup-hint"><i class="fa-solid fa-circle-info"></i> <span>Kosongkan password jika tidak perlu enkripsi. File akan berformat JSON.</span></div>
 <div style="display:flex; gap:12px; margin-top:15px;">
-<button type="button" class="btn-pro" style="flex-grow:1; justify-content:center;" onclick="doExport()"><i class="fa-solid fa-download"></i> Download</button>
-<button type="button" style="color:var(--slate-500); background:none; border:none;" onclick="closeExportModal()">Batal</button>
+<button type="button" class="btn-pro" style="flex-grow:1; justify-content:center; background: linear-gradient(135deg, #06b6d4, #0891b2);" onclick="bukaImportModal()"><i class="fa-solid fa-file-import"></i> Restore</button>
+<button type="button" class="btn-pro" style="flex-grow:1; justify-content:center;" onclick="doExport()"><i class="fa-solid fa-download"></i> Backup</button>
+</div>
+<div style="text-align:center; margin-top:12px;">
+<button type="button" style="color:var(--slate-500); background:none; border:none; font-size:13px;" onclick="closeExportModal()">Tutup</button>
 </div>
 </div>
 </div>
-
 <!-- MODAL IMPORT -->
 <div class="modal-overlay" id="importModal">
 <div class="modal">
@@ -829,7 +829,6 @@ input:checked + .slider:before { transform: translateX(20px); }
 </div>
 </div>
 </div>
-
 <div class="modal-overlay" id="entryModal">
 <div class="modal">
 <h3 id="modal-title" style="margin-bottom:15px; color:var(--accent-color);">Kredensial Baru</h3>
@@ -1031,7 +1030,6 @@ function toggleSidebar(show) { const sidebar = safeGet('sidebarMenu'), overlay =
 function bukaDaftarFolderInduk() { showFolderRootView = true; currentTab = 'beranda'; navigationStack = []; document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); const tabBeranda = safeGet('tab-beranda'); if (tabBeranda) tabBeranda.classList.add('active'); const h2 = safeGet('nama-menu-halaman'); if (h2) safeSetHTML(h2, '<i class="fa-solid fa-folder-tree"></i><span>Folder Utama</span>'); renderCurrentView(); const appContainer = document.querySelector('.app-container'); if (appContainer) appContainer.scrollTo({top: 0, behavior: 'smooth'}); showToast('📁 Folder Utama', 'fa-folder-tree'); }
 function toggleFullscreen() { const sidebarIcon = document.getElementById('sidebarFullscreenIcon'); if (!document.fullscreenElement) { if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen(); else if (document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullscreen(); else if (document.documentElement.msRequestFullscreen) document.documentElement.msRequestFullscreen(); if (sidebarIcon) sidebarIcon.className = 'fa-solid fa-compress'; showToast('📱 Mode Layar Penuh', 'fa-expand'); } else { if (document.exitFullscreen) document.exitFullscreen(); else if (document.webkitExitFullscreen) document.webkitExitFullscreen(); else if (document.msExitFullscreen) document.msExitFullscreen(); if (sidebarIcon) sidebarIcon.className = 'fa-solid fa-expand'; showToast('🔙 Keluar Layar Penuh', 'fa-compress'); } }
 document.addEventListener('fullscreenchange', () => { const sidebarIcon = document.getElementById('sidebarFullscreenIcon'); if (sidebarIcon) sidebarIcon.className = document.fullscreenElement ? 'fa-solid fa-compress' : 'fa-solid fa-expand'; });
-
 // === BACKUP & RESTORE FUNCTIONS ===
 function bukaBackupRestore() {
 toggleSidebar(false);
@@ -1153,6 +1151,20 @@ function closeExportModal() {
 const modal = safeGet('exportModal');
 if (modal) modal.style.display = 'none';
 }
+function bukaImportModal() {
+closeExportModal();
+const modal = safeGet('importModal');
+if (modal) {
+modal.style.display = 'grid';
+const step1 = safeGet('import-step-1');
+const step2 = safeGet('import-step-2');
+const fileInput = safeGet('import-file-input');
+if (step1) step1.style.display = 'block';
+if (step2) step2.style.display = 'none';
+if (fileInput) fileInput.value = '';
+importPendingData = null;
+}
+}
 function handleImportFile(event) {
 const file = event.target.files[0];
 if (!file) return;
@@ -1248,7 +1260,8 @@ executeImport();
 function executeImport() {
 if (!importPendingData || !importPendingData.data) return;
 const data = importPendingData.data;
-if (!confirm(`Import ${data.categories?.length || '?'} kategori?\n\n${(data.vault||[]).length} akun & ${(data.notes||[]).length} catatan akan ditambahkan ke database Anda.`)) {
+if (!confirm(`Import ${data.categories?.length || '?'} kategori?
+${(data.vault||[]).length} akun & ${(data.notes||[]).length} catatan akan ditambahkan ke database Anda.`)) {
 closeImportModal();
 return;
 }
@@ -1294,7 +1307,6 @@ safeGet('import-step-2').style.display = 'none';
 safeGet('import-file-input').value = '';
 importPendingData = null;
 }
-
 window.onload = function() {
 const apiUrlInput = safeGet('api-url-input');
 if (apiUrlInput) apiUrlInput.value = apiUrl;
@@ -1438,9 +1450,87 @@ window.toggleExportCategory = toggleExportCategory;
 window.toggleSelectAllExport = toggleSelectAllExport;
 window.toggleExportPassword = toggleExportPassword;
 window.doExport = doExport;
+window.bukaImportModal = bukaImportModal;
 window.handleImportFile = handleImportFile;
 window.doImport = doImport;
 window.closeImportModal = closeImportModal;
+})();
+</script>
+<!-- === FITUR TAP OUTSIDE TO CLOSE === -->
+<script>
+(function() {
+// Helper: tutup modal saat tap di overlay (bukan di dalam modal)
+function addOutsideClose(overlayId, closeFn) {
+const overlay = document.getElementById(overlayId);
+if (!overlay) return;
+overlay.addEventListener('click', function(e) {
+if (e.target === overlay) {
+if (typeof closeFn === 'function') closeFn();
+else if (typeof closeFn === 'string') {
+try { eval(closeFn); } catch(err) { console.warn('Close failed:', err); }
+}
+}
+});
+}
+
+// Daftar semua modal & fungsi close-nya
+addOutsideClose('entryModal', function() {
+if (typeof closeModal === 'function') closeModal();
+});
+addOutsideClose('noteModal', function() {
+if (typeof closeNoteModal === 'function') closeNoteModal();
+});
+addOutsideClose('pinSettingsModal', function() {
+if (typeof closePinSettings === 'function') closePinSettings();
+});
+addOutsideClose('queueModal', function() {
+if (typeof closeQueueModal === 'function') closeQueueModal();
+});
+addOutsideClose('exportModal', function() {
+if (typeof closeExportModal === 'function') closeExportModal();
+});
+addOutsideClose('importModal', function() {
+if (typeof closeImportModal === 'function') closeImportModal();
+});
+addOutsideClose('dropdownLayerModal', function() {
+if (typeof tutupCustomDropdownLayer === 'function') tutupCustomDropdownLayer();
+});
+addOutsideClose('contextMenuOverlay', function() {
+if (typeof closeContextMenu === 'function') closeContextMenu();
+});
+addOutsideClose('moreMenuOverlay', function() {
+const moreMenu = document.getElementById('moreMenu');
+if (moreMenu) moreMenu.style.display = 'none';
+const overlay = document.getElementById('moreMenuOverlay');
+if (overlay) overlay.classList.remove('active');
+});
+addOutsideClose('floating-menu', function() {
+const fm = document.getElementById('floating-menu');
+if (fm) fm.style.display = 'none';
+});
+
+// Tambahin juga: tekan tombol ESC untuk tutup modal
+document.addEventListener('keydown', function(e) {
+if (e.key === 'Escape') {
+const modals = [
+['entryModal', 'closeModal'],
+['noteModal', 'closeNoteModal'],
+['pinSettingsModal', 'closePinSettings'],
+['queueModal', 'closeQueueModal'],
+['exportModal', 'closeExportModal'],
+['importModal', 'closeImportModal'],
+['dropdownLayerModal', 'tutupCustomDropdownLayer'],
+['contextMenuOverlay', 'closeContextMenu']
+];
+for (const [id, fn] of modals) {
+const el = document.getElementById(id);
+if (el && el.style.display !== 'none' && !el.classList.contains('active') === false) {
+try { window[fn](); } catch(err) {}
+break;
+}
+}
+}
+});
 })();
 </script>
 </body>
